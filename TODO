@@ -1,0 +1,15 @@
+[ ] can extension interact with two tabs/two sites worth of cookies/oauth?
+[ ] interact with google calendar events
+  [ ] put symbol on events (no terp requested, or state of req in boostlingo)
+[ ] get schedule from boostlingo
+  - can we correlate by id somehow or do we need to do it by time?
+[ ] make boostlingo request
+  - requires login
+[ ] button to start, but not submit, boostlingo form from gcal
+[ ] button to make boostlingo req from gcal
+  - include zoom link if it has one, or google meet
+[ ] per-user config:
+  - buffer time after job?
+  - multiple BL acc'ts?
+  - multiple requestors?
+  - prewritten job descs
