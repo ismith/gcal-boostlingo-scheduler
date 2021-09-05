@@ -1,0 +1,16 @@
+# Create appointment
+
+When I click save, I see a number of requests:
+
+1.  /api/web/appointment/appointment-edit-conflicts?q={"clientCompanyId":30686,"clientAccountId":85243,"startTime":"2021-07-20T19:00:00.000Z","duration":"0:1:0:00","companyLocationId":null,"consumerId":null}
+responds with json:
+`{"conflicts":[],"conflictProperties":[]}`
+
+2. /api/web/appointment/clone is a POST, with a bearer token:
+```
+Bearer [jwt]
+```
+
+3. appt id: 168840041740
+
+4. GET /api/web/appointment/appointment?q={"appointmentId":565089}
