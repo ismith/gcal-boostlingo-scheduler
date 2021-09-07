@@ -56,13 +56,14 @@ function _faIconToCode(icon) {
   }
 }
 
-// this disappears on click. wtf?
+// todo: do I need Commmn Properties from
+// https://fontawesome.com/v5.15/how-to-use/on-the-web/advanced/css-pseudo-elements?
+
 function faPrepend(node, icon) {
   var style = document.createElement('style');
-  style.innerHTML="div[data-eventid=" + node.dataset.eventid + "][data-eventchip] div div span:first-of-type ::before {\ncolor: black;\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode(icon) + "'\n}";
-  console.log("STYLE: " + style.innerHTML);
+  style.innerHTML="div[data-eventid=" + node.dataset.eventid + "][data-eventchip] div div span:first-of-type ::before {\n\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode(icon) + "'\n}";
   document.head.appendChild(style);
-  return;
+  return style;
 }
 
 function createDOMNode(html) {
@@ -97,12 +98,13 @@ function _eventTimes(e) {
 window.onload = function() {
   console.log(getEvents());
 
-  /*
-  const events = getEvents().map(function(e) {
-    faPrepend(e, 'fa-spinner');
-  });
-  */
   const events = getEvents();
-  faPrepend(events[11], 'fa-spinner');
-  console.log(events[11]);
+
+  // all events get spinner icon
+  const styles = events.map(function(e) {
+    return faPrepend(e, 'fa-spinner');
+  });
+
+  // demo: one event gets spinner replaced with circle-notch
+  styles[11].innerHTML = "div[data-eventid=" + events[11].dataset.eventid + "][data-eventchip] div div span:first-of-type ::before {\n\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode('fa-circle-notch') + "'\n}";
 }
