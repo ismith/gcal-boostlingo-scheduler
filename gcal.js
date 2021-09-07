@@ -1,11 +1,20 @@
 // https://raw.githubusercontent.com/datejs/Datejs/master/build/date-en-US.js
 
+// map from eventid to the <style> that controls its icon
+var iconMap = {};
+
 function getEvents() {
   // NB: multi-day events (at least the all-day ones)  will have one node per
   // day, with the same data-eventid
   const events = Array.from(
     document.querySelectorAll('[data-eventid][data-eventchip]')
   );
+
+  events.forEach(function(e) {
+    var style = document.createElement('style');
+    iconMap[eventId(e)] = style;
+    document.head.appendChild(style);
+  });
   return events;
 }
 
@@ -59,11 +68,9 @@ function _faIconToCode(icon) {
 // todo: do I need Commmn Properties from
 // https://fontawesome.com/v5.15/how-to-use/on-the-web/advanced/css-pseudo-elements?
 
-function faPrepend(node, icon) {
-  var style = document.createElement('style');
-  style.innerHTML="div[data-eventid=" + node.dataset.eventid + "][data-eventchip] div div span:first-of-type ::before {\n\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode(icon) + "'\n}";
-  document.head.appendChild(style);
-  return style;
+function setIcon(node, icon) {
+  style = iconMap[eventId(node)]
+  style.innerHTML="div[data-eventid=" + eventId(node) + "][data-eventchip] div div span:first-of-type ::before {\n\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode(icon) + "'\n}";
 }
 
 function createDOMNode(html) {
@@ -102,9 +109,9 @@ window.onload = function() {
 
   // all events get spinner icon
   const styles = events.map(function(e) {
-    return faPrepend(e, 'fa-spinner');
+    return setIcon(e, 'fa-spinner');
   });
 
   // demo: one event gets spinner replaced with circle-notch
-  styles[11].innerHTML = "div[data-eventid=" + events[11].dataset.eventid + "][data-eventchip] div div span:first-of-type ::before {\n\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode('fa-circle-notch') + "'\n}";
+  setIcon(events[11], 'fa-circle-notch');
 }
