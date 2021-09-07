@@ -50,6 +50,10 @@ function _eventTimes(e) {
   };
 }
 
+// want to call these functions from devtools?
+// https://stackoverflow.com/questions/48104433/how-to-import-es6-modules-in-content-script-for-chrome-extension
+// has some ideas.
+
 window.onload = function() {
   console.log(getEvents());
 }
