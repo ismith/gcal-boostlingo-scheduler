@@ -1,8 +1,11 @@
 // https://raw.githubusercontent.com/datejs/Datejs/master/build/date-en-US.js
 
-// d is the document
-function getEvents(d) {
-  var events = d.querySelectorAll('[data-eventid][data-eventchip]');
+function getEvents() {
+  // NB: multi-day events (at least the all-day ones)  will have one node per
+  // day, with the same data-eventid
+  const events = Array.from(
+    document.querySelectorAll('[data-eventid][data-eventchip]')
+  );
   return events;
 }
 
@@ -15,16 +18,15 @@ function eventId(e) {
   return e.dataset.eventid;
 }
 
-function getEvent(d, id) {
-  return d.querySelector(`body [data-eventid="${id}"][data-eventchip]`);
+function getEvent(id) {
+  return document.querySelector(`body [data-eventid="${id}"][data-eventchip]`);
 }
 
-//
-function getElementToPrepend(d, id) {
+function getElementToPrepend(id) {
   // node div div span, span should be .ayClmf, but I'm not sure we can rely on
   // that if the SPA changes. Not that 'div div span' is terribly robust, but it
   // feels slightly less brittle.
-  const span = getEvent(d, id).querySelector('div div span');
+  const span = getEvent(id).querySelector('div div span');
 
   return span;
 }
@@ -46,4 +48,8 @@ function _eventTimes(e) {
     begin: Date.parse(dateStr + " " + beginStr),
     end: Date.parse(dateStr + " " + endStr)
   };
+}
+
+window.onload = function() {
+  console.log(getEvents());
 }
