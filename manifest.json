@@ -8,7 +8,7 @@
     {
       "matches": ["*://calendar.google.com/*"],
       "css": [],
-      "js": ["gcal.js"]
+      "js": ["fontawesome-free.js", "gcal.js"]
     }
   ]
 }

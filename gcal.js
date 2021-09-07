@@ -31,6 +31,46 @@ function getElementToPrepend(id) {
   return span;
 }
 
+// https://fontawesome.com/v5/cheatsheet
+function _faIconToCode(icon) {
+  switch(icon) {
+    case 'fa-spinner':
+      return "\\f110";
+      break;
+    case 'fa-circle-notch':
+      return "\\f1ce";
+      break;
+    case 'fa-pause-circle':
+      return "\\f28b";
+      break;
+    case 'fa-american-sign-language-interpreting':
+      return "\\f2a3";
+      break;
+    case 'fa-archive':
+      return "\\f1c6";
+      break;
+    default:
+      console.log("Unhandled fontawesome icon name: " + icon + ".");
+      return "";
+      break;
+  }
+}
+
+// this disappears on click. wtf?
+function faPrepend(node, icon) {
+  var style = document.createElement('style');
+  style.innerHTML="div[data-eventid=" + node.dataset.eventid + "][data-eventchip] div div span:first-of-type ::before {\ncolor: black;\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode(icon) + "'\n}";
+  console.log("STYLE: " + style.innerHTML);
+  document.head.appendChild(style);
+  return;
+}
+
+function createDOMNode(html) {
+  var t = document.createElement('template');
+  t.innerHTML = html;
+  return t.content.firstChild;
+}
+
 // QUESTIONABLE RELIABILITY
 // I don't know what all day or cross-day events look like. This is fine.
 function _eventTimes(e) {
@@ -56,4 +96,13 @@ function _eventTimes(e) {
 
 window.onload = function() {
   console.log(getEvents());
+
+  /*
+  const events = getEvents().map(function(e) {
+    faPrepend(e, 'fa-spinner');
+  });
+  */
+  const events = getEvents();
+  faPrepend(events[11], 'fa-spinner');
+  console.log(events[11]);
 }
