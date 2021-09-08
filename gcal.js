@@ -70,7 +70,14 @@ function _faIconToCode(icon) {
 
 function setIcon(node, icon) {
   style = iconMap[eventId(node)]
-  style.innerHTML="div[data-eventid=" + eventId(node) + "][data-eventchip] div div span:first-of-type ::before {\n\nfont-family: 'Font Awesome 5 Free';\nfont-weight: 900; content: '" + _faIconToCode(icon) + "'\n}";
+  const str = `
+div[data-eventid="${eventId(node)}"][data-eventchip] div div span:first-of-type ::before {
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  content: '${ _faIconToCode(icon)}';
+}
+`;
+  style.innerHTML = str;
 }
 
 function createDOMNode(html) {
