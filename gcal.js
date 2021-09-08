@@ -60,20 +60,35 @@ function setIcon(node, icon) {
 
 // QUESTIONABLE RELIABILITY
 // I don't know what all day or cross-day events look like. This is fine.
+//
+// NB: Date _must_ be date.js, the stdlib's Date.parse is not correct here.
+//
+// TODO: breaks on multi-day events (["September 6 [emdash] 10", "2021"]), can
+// we handle that?
 function _eventTimes(e) {
   // first div, will be like: "3pm to 3:30pm, ❇️ Ian / Ben 1/1, Ian Smith,
   // Accepted, No location, September 9, 2021"
-  var s = e.querySelector('div').textContent.split(', ');
-  var dateStr = s.split(', ').slice(-2).join(', ');
+  var s = e.querySelector('div').textContent.split(', ')
+  var dateStr = s.slice(-2).join(', ');
   var timeStr = s[0];
+
+  if (timeStr.endsWith('All day')) {
+    var d = Date.parse(dateStr);
+    return {
+      begin: d,
+      end: d
+    };
+  }
 
   var beginStr;
   var endStr;
   [beginStr, endStr] = timeStr.split(' to ');
 
+  beginStr = dateStr + " " + beginStr;
+  endStr = dateStr + " " + endStr;
   return {
-    begin: Date.parse(dateStr + " " + beginStr),
-    end: Date.parse(dateStr + " " + endStr)
+    begin: Date.parse(beginStr),
+    end: Date.parse(endStr)
   };
 }
 
@@ -94,4 +109,8 @@ window.onload = function() {
 
   // demo: one event gets spinner replaced with circle-notch
   setIcon(events[11], 'fa-circle-notch');
+
+  events.forEach(function(e) {
+    console.log(_eventTimes(e));
+  });
 }
