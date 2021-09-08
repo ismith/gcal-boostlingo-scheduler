@@ -15,7 +15,8 @@ function getEvents() {
     span = document.createElement('span');
     span.className = "boostlingo-icon fas " + "fa-spinner";
     span.style.marginRight = '5px';
-    e.querySelector('div div span:first-of-type').before(span);
+    var targetSpan = e.querySelector('div div span:first-of-type');
+    targetSpan.before(span);
     iconMap[eventId(e)] = span;
   });
 
@@ -35,27 +36,10 @@ function getEvent(id) {
   return document.querySelector(`body [data-eventid="${id}"][data-eventchip]`);
 }
 
-function getElementToPrepend(id) {
-  // node div div span, span should be .ayClmf, but I'm not sure we can rely on
-  // that if the SPA changes. Not that 'div div span' is terribly robust, but it
-  // feels slightly less brittle.
-  const span = getEvent(id).querySelector('div div span');
-
-  return span;
-}
-
 function setIcon(node, icon) {
   var span = iconMap[eventId(node)];
-  span.className = "fas " + icon;
-  /*
-  if (span === {}) {
-    span = document.createElement('span');
-    span.className = "fas " + icon;
-    span.style.marginRight = '5px';
-    node.querySelector('div div span:first-of-type').before(span);
-    iconMap[eventId(node)] = span;
-  }
-  */
+  // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
+  span.className = "boostlingo-icon fas " + icon;
 }
 
 // QUESTIONABLE RELIABILITY
@@ -97,8 +81,6 @@ function _eventTimes(e) {
 // has some ideas.
 
 window.onload = function() {
-  // console.log(getEvents());
-
   const events = getEvents();
   console.log(events);
 
