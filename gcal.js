@@ -1,6 +1,6 @@
 // https://raw.githubusercontent.com/datejs/Datejs/master/build/date-en-US.js
 
-// map from eventid to the <style> that controls its icon
+// map from eventid to the <span> that is its icon
 var iconMap = {};
 
 function getEvents() {
@@ -10,11 +10,15 @@ function getEvents() {
     document.querySelectorAll('[data-eventid][data-eventchip]')
   );
 
+  // this is not idempotent, and it should be
   events.forEach(function(e) {
-    var style = document.createElement('style');
-    iconMap[eventId(e)] = style;
-    document.head.appendChild(style);
+    span = document.createElement('span');
+    span.className = "boostlingo-icon fas " + "fa-spinner";
+    span.style.marginRight = '5px';
+    e.querySelector('div div span:first-of-type').before(span);
+    iconMap[eventId(e)] = span;
   });
+
   return events;
 }
 
@@ -40,56 +44,18 @@ function getElementToPrepend(id) {
   return span;
 }
 
-// https://fontawesome.com/v5/cheatsheet
-function _faIconToCode(icon) {
-  switch(icon) {
-    case 'fa-spinner':
-      return "\\f110";
-      break;
-    case 'fa-circle-notch':
-      return "\\f1ce";
-      break;
-    case 'fa-pause-circle':
-      return "\\f28b";
-      break;
-    case 'fa-american-sign-language-interpreting':
-      return "\\f2a3";
-      break;
-    case 'fa-archive':
-      return "\\f1c6";
-      break;
-    default:
-      console.log("Unhandled fontawesome icon name: " + icon + ".");
-      return "";
-      break;
-  }
-}
-
-// todo: do I need Commmn Properties from
-// https://fontawesome.com/v5.15/how-to-use/on-the-web/advanced/css-pseudo-elements?
-
 function setIcon(node, icon) {
-  var span = document.createElement('span');
-  span.className = "fas fa-spinner";
-  node.querySelector('div div span:first-of-type').before(span);
-
+  var span = iconMap[eventId(node)];
+  span.className = "fas " + icon;
   /*
-  style = iconMap[eventId(node)]
-  const str = `
-div[data-eventid="${eventId(node)}"][data-eventchip] div div span:first-of-type ::before {
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  content: '${ _faIconToCode(icon)}';
-}
-`;
-  style.innerHTML = str;
+  if (span === {}) {
+    span = document.createElement('span');
+    span.className = "fas " + icon;
+    span.style.marginRight = '5px';
+    node.querySelector('div div span:first-of-type').before(span);
+    iconMap[eventId(node)] = span;
+  }
   */
-}
-
-function createDOMNode(html) {
-  var t = document.createElement('template');
-  t.innerHTML = html;
-  return t.content.firstChild;
 }
 
 // QUESTIONABLE RELIABILITY
@@ -116,9 +82,10 @@ function _eventTimes(e) {
 // has some ideas.
 
 window.onload = function() {
-  console.log(getEvents());
+  // console.log(getEvents());
 
   const events = getEvents();
+  console.log(events);
 
   // all events get spinner icon
   const styles = events.map(function(e) {
