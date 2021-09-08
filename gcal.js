@@ -69,6 +69,11 @@ function _faIconToCode(icon) {
 // https://fontawesome.com/v5.15/how-to-use/on-the-web/advanced/css-pseudo-elements?
 
 function setIcon(node, icon) {
+  var span = document.createElement('span');
+  span.className = "fas fa-spinner";
+  node.querySelector('div div span:first-of-type').before(span);
+
+  /*
   style = iconMap[eventId(node)]
   const str = `
 div[data-eventid="${eventId(node)}"][data-eventchip] div div span:first-of-type ::before {
@@ -78,6 +83,7 @@ div[data-eventid="${eventId(node)}"][data-eventchip] div div span:first-of-type 
 }
 `;
   style.innerHTML = str;
+  */
 }
 
 function createDOMNode(html) {
