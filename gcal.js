@@ -75,6 +75,7 @@ div[data-eventid="${eventId(node)}"][data-eventchip] div div span:first-of-type 
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
   content: '${ _faIconToCode(icon)}';
+  margin-right: 5px;
 }
 `;
   style.innerHTML = str;
