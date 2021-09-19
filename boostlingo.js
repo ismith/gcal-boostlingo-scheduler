@@ -1,21 +1,9 @@
-async function submitLogin(e) {
-  e.preventDefault();
-  console.log("SL");
-  console.log(e);
-
-  let form = e.srcElement;
-  let email = e.srcElement['email'].value;
-  let password = e.srcElement['password'].value;
-  form.reset();
-  const authData = await signin(email, password);
-  console.log(authData);
-}
-console.log("HI bl.js");
-
-window.onload = function() {
-  var f = document.getElementById('boostlingoLoginForm');
-  f.onsubmit = submitLogin
-};
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    console.log(sender);
+    debugger;
+  }
+);
 
 // http POST https://app.boostlingo.com/api/web/account/signin email=$EMAIL password="$PASSWORD"
 async function signin(email, password) {

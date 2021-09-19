@@ -17,7 +17,7 @@
   "web_accessible_resources": [
     {
       "matches": ["*://calendar.google.com/*"],
-      "resources": ["boostlingo.js"]
+      "resources": ["boostlingo.js", "popup.js"]
     }
   ],
   "content_security_policy": {
@@ -26,5 +26,11 @@
   },
   "sandbox": {
     "pages": [ "popup.html" ]
-  }
+  },
+  "background": {
+    "service_worker": "boostlingo.js"
+  },
+  "host_permissions": [
+    "https://app.boostlingo.com/*"
+  ]
 }
