@@ -1,5 +1,8 @@
 // https://raw.githubusercontent.com/datejs/Datejs/master/build/date-en-US.js
 
+
+const TITLE_SPAN_CLASS = 'ayClmf';
+
 // map from eventid to the <span> that is its icon
 var iconMap = {};
 var mutationObserverMap = {};
@@ -11,45 +14,21 @@ function getEvents() {
     document.querySelectorAll('[data-eventid][data-eventchip]')
   );
 
-  // this is not idempotent, and it should be
   events.forEach(function(e) {
     span = document.createElement('span');
     span.className = "boostlingo-icon fas " + "fa-spinner";
     span.style.marginRight = '5px';
-    var targetSpan = e.querySelector('div div span:first-of-type');
-    console.log(targetSpan);
-    console.log(targetSpan.parentNode);
+    var targetSpan = e.querySelector('span.' + TITLE_SPAN_CLASS);
+    if (targetSpan === null) {
+      console.log("targetSpan null for eventId "+ eventId(e) + ".");
+      return;
+    }
+    // TODO: this is not idempotent, and it should be - using
+    // span.{TITLE_SPAN_CLASS} is good, but we should also check that before the
+    // span there isn't already a boostlingo-icon span.
     targetSpan.before(span);
     iconMap[eventId(e)] = span;
-
-    var observer = new MutationObserver(function(mutationList, observer) {
-      console.log("observer!");
-      // given element, check if it's already got an icon
-      // if it does not, re-attach the icon span
-      mutationList.forEach(function(m) {
-          // console.log(m);
-        if (m.removedNodes.length > 0) {
-          console.log("REM", m.removedNodes[0].className);
-        }
-        if (m.addedNodes.length > 0) {
-          console.log("ADD", m.addedNodes[0].className);
-        }
-      });
-
-      var m = mutationList[0];
-      if (m.target && ! m.target.children[0].className.startsWith("boostlingo-icon")) {
-        console.log("eid: " + eventId(m.target) + " " + m.target.dataset.eventid);
-        console.log(m.target)
-        console.log(m.target.textContent)
-        // observer.disconnect()
-        // m.target.children[0].before(iconMap[eventId(m.target)]);
-        // observer.observe(m.target, {childList: true})
-      }
-    });
-    // observer.observe(span.parentNode, {childList: true})
-    observer.observe(span.parentNode, {childList: true})
   });
-
 
   return events;
 }
@@ -69,6 +48,11 @@ function getEvent(id) {
 
 function setIcon(node, icon) {
   var span = iconMap[eventId(node)];
+  if (span === undefined) {
+    // TODO: not sure what these events are.  All-days, maybe?
+    console.log("iconMap[_] undefined for eventId: " + eventId(node) + ".");
+    return;
+  }
   // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
   span.className = "boostlingo-icon fas " + icon;
 }
@@ -123,7 +107,9 @@ window.onload = function() {
   // demo: one event gets spinner replaced with circle-notch
   setIcon(events[11], 'fa-circle-notch');
 
+  /*
   events.forEach(function(e) {
     console.log(_eventTimes(e));
   });
+  */
 }
