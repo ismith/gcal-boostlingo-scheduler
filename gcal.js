@@ -1,13 +1,43 @@
 // https://raw.githubusercontent.com/datejs/Datejs/master/build/date-en-US.js
 
 
+const ROOT_QUERY = "[role=main]";
 const TITLE_SPAN_CLASS = 'ayClmf';
+const DETAIL_ROOT_ID = "yDmH0d";
 
 // map from eventid to the <span> that is its icon
-var iconMap = {};
-var mutationObserverMap = {};
+var iconSpanMap = {};
+// map from eventid to the name of its icon
+var iconNameMap = {};
+const nullSpans = new Map();
+var getEventsCounter = 0;
+
+function getRootNode() {
+  let mainNode = document.querySelector(ROOT_QUERY);
+  if (mainNode) return mainNode.parentNode;
+}
+
+function initObserver() {
+  const rootNode = getRootNode();
+  const observer = new MutationObserver(getEvents);
+  observer.observe(rootNode, {
+    attributes: true,
+    childList: true,
+    characterData: false,
+    subtree: true,
+  });
+  observer.observe(document.getElementById(DETAIL_ROOT_ID), {
+    subtree: true,
+    childList: true,
+  });
+
+  return getEvents();
+}
 
 function getEvents() {
+  getEventsCounter++;
+  // console.log("getEventsCounter: " + getEventsCounter);
+
   // NB: multi-day events (at least the all-day ones)  will have one node per
   // day, with the same data-eventid
   const events = Array.from(
@@ -15,19 +45,33 @@ function getEvents() {
   );
 
   events.forEach(function(e) {
-    span = document.createElement('span');
-    span.className = "boostlingo-icon fas " + "fa-spinner";
-    span.style.marginRight = '5px';
     var targetSpan = e.querySelector('span.' + TITLE_SPAN_CLASS);
     if (targetSpan === null) {
-      console.log("targetSpan null for eventId "+ eventId(e) + ".");
+      // I'm pretty sure based on count ('nullSpans.size' on my current calendar
+      // view) that these are the 'hidden' spans for multi-day events. (A 5-day
+      // event will have 1 real and 4 'hidden' spans.) Fine for now, might be nice
+      // to ignore better somehow.
+      nullSpans.set(eventId(e), true);
+      // console.log("nullSpans size: " + nullSpans.size);
       return;
     }
-    // TODO: this is not idempotent, and it should be - using
-    // span.{TITLE_SPAN_CLASS} is good, but we should also check that before the
-    // span there isn't already a boostlingo-icon span.
+
+    if (targetSpan.previousSibling !== undefined &&
+        targetSpan.previousSibling !== null &&
+        targetSpan.previousSibling.className.includes("boostlingo-icon")) {
+      return;
+    }
+
+    if (iconNameMap[eventId(e)] === null ||
+        iconNameMap[eventId(e)] === undefined) {
+      iconNameMap[eventId(e)] = "fa-spinner";
+    }
+
+    span = document.createElement('span');
+    span.className = "boostlingo-icon fas " + iconNameMap[eventId(e)];
+    span.style.marginRight = '5px';
     targetSpan.before(span);
-    iconMap[eventId(e)] = span;
+    iconSpanMap[eventId(e)] = span;
   });
 
   return events;
@@ -47,10 +91,16 @@ function getEvent(id) {
 }
 
 function setIcon(node, icon) {
-  var span = iconMap[eventId(node)];
+  var span = iconSpanMap[eventId(node)];
+  console.log("setIcon", span);
+  iconNameMap[eventId(node)] = icon;
   if (span === undefined) {
-    // TODO: not sure what these events are.  All-days, maybe?
-    console.log("iconMap[_] undefined for eventId: " + eventId(node) + ".");
+    // I'm pretty sure based on count ('nullSpans.size' on my current calendar
+    // view) that these are the 'hidden' spans for multi-day events. (A 5-day
+    // event will have 1 real and 4 'hidden' spans.) Fine for now, might be nice
+    // to ignore better somehow.
+    nullSpans.set(eventId(node), true);
+    console.log("IN setIcon: nullSpans size: " + nullSpans.size);
     return;
   }
   // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
@@ -96,13 +146,8 @@ function _eventTimes(e) {
 // has some ideas.
 
 window.onload = function() {
-  const events = getEvents();
+  const events = initObserver();
   console.log(events);
-
-  // all events get spinner icon
-  const styles = events.map(function(e) {
-    return setIcon(e, 'fa-spinner');
-  });
 
   // demo: one event gets spinner replaced with circle-notch
   setIcon(events[11], 'fa-circle-notch');
