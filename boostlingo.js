@@ -1,13 +1,26 @@
+console.log("HI background job");
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  async function(request, sender, sendResponse) {
     console.log(sender);
-    debugger;
+    console.log(request);
+
+    switch (request.type) {
+      case "auth":
+        const resp = await signin(request.email, request.password);
+        console.log("resp", resp);
+        sendResponse(resp);
+        break;
+      default:
+        console.error("Unhandled request type", request.type);
+    }
   }
 );
 
 // http POST https://app.boostlingo.com/api/web/account/signin email=$EMAIL password="$PASSWORD"
 async function signin(email, password) {
   const url = 'https://app.boostlingo.com/api/web/account/signin';
+  const body = JSON.stringify({email, password});
+  console.log("boDY", body);
   const raw = await fetch(url, {
     method: 'POST',
     headers: {
@@ -15,9 +28,25 @@ async function signin(email, password) {
     },
     body: JSON.stringify({email, password})
   });
-  debugger;
-  const response = raw.json();
-  return {expiresAt: response.expiresAt, token: response.token}
+  console.log("fetched?")
+  const status = raw.status;
+  var error = "";
+  var response = {};
+  var retval = {};
+  if (status == 200) {
+    const json = await raw.json();
+    console.log("200", json);
+    response = json;
+    error = "";
+    retval = {status: status, expiresAt: response.expiresAt, token: response.token}
+  } else {
+    const text = await raw.text();
+    error = text;
+    response = {};
+    retval = {status: status, error: error}
+  }
+
+  return retval;
 }
 
 // http -v POST https://app.boostlingo.com/api/web/appointment/appointments start="$START" end="$END" authorization="Bearer $TOKEN"

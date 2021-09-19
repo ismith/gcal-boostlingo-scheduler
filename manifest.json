@@ -21,11 +21,8 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; default-src 'self'",
+    "extension_pages": "script-src 'self'; default-src 'self'; connect-src https://app.boostlingo.com",
     "sandbox": "sandbox allow-scripts allow-forms; script-src 'self'; default-src 'self'; connect-src https://app.boostlingo.com"
-  },
-  "sandbox": {
-    "pages": [ "popup.html" ]
   },
   "background": {
     "service_worker": "boostlingo.js"
