@@ -1,13 +1,34 @@
+async function submitLogin(e) {
+  e.preventDefault();
+  console.log("SL");
+  console.log(e);
+
+  let form = e.srcElement;
+  let email = e.srcElement['email'].value;
+  let password = e.srcElement['password'].value;
+  form.reset();
+  const authData = await signin(email, password);
+  console.log(authData);
+}
+console.log("HI bl.js");
+
+window.onload = function() {
+  var f = document.getElementById('boostlingoLoginForm');
+  f.onsubmit = submitLogin
+};
+
 // http POST https://app.boostlingo.com/api/web/account/signin email=$EMAIL password="$PASSWORD"
-function signin(email, password) {
+async function signin(email, password) {
   const url = 'https://app.boostlingo.com/api/web/account/signin';
-  const response = await fetch(url, {
+  const raw = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({email, password})
-  }).json();
+  });
+  debugger;
+  const response = raw.json();
   return {expiresAt: response.expiresAt, token: response.token}
 }
 
@@ -16,7 +37,7 @@ function signin(email, password) {
 // start and end are both RFC3339. SPA uses UTC/Z, unclear if that's required
 function getAppointments(token, start, end) {
   const url = 'https://app.boostlingo.com/api/web/appointment/appointments';
-  const response = await fetch(url, {
+  const response = fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
