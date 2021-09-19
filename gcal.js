@@ -6,9 +6,10 @@ const TITLE_SPAN_CLASS = 'ayClmf';
 const DETAIL_ROOT_ID = "yDmH0d";
 
 // map from eventid to the <span> that is its icon
-var iconSpanMap = {};
+var iconSpanMap = new Map();
 // map from eventid to the name of its icon
-var iconNameMap = {};
+var iconNameMap = new Map();
+var iconTitleMap = new Map();
 const nullSpans = new Map();
 var getEventsCounter = 0;
 
@@ -62,16 +63,18 @@ function getEvents() {
       return;
     }
 
-    if (iconNameMap[eventId(e)] === null ||
-        iconNameMap[eventId(e)] === undefined) {
-      iconNameMap[eventId(e)] = "fa-spinner";
+    if (iconNameMap.get(eventId(e)) === null ||
+        iconNameMap.get(eventId(e)) === undefined) {
+      iconNameMap.set(eventId(e), "fa-spinner");
+      const spanTitle = e.querySelector('span.' + TITLE_SPAN_CLASS).textContent;
+      iconTitleMap.set(eventId(e), spanTitle);
     }
 
     span = document.createElement('span');
-    span.className = "boostlingo-icon fas " + iconNameMap[eventId(e)];
+    span.className = "boostlingo-icon fas " + iconNameMap.get(eventId(e));
     span.style.marginRight = '5px';
     targetSpan.before(span);
-    iconSpanMap[eventId(e)] = span;
+    iconSpanMap.set(eventId(e), span);
   });
 
   return events;
@@ -91,9 +94,9 @@ function getEvent(id) {
 }
 
 function setIcon(node, icon) {
-  var span = iconSpanMap[eventId(node)];
+  var span = iconSpanMap.get(eventId(node));
   console.log("setIcon", span);
-  iconNameMap[eventId(node)] = icon;
+  iconNameMap.set(eventId(node), icon);
   if (span === undefined) {
     // I'm pretty sure based on count ('nullSpans.size' on my current calendar
     // view) that these are the 'hidden' spans for multi-day events. (A 5-day
