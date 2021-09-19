@@ -2,6 +2,7 @@
 
 // map from eventid to the <span> that is its icon
 var iconMap = {};
+var mutationObserverMap = {};
 
 function getEvents() {
   // NB: multi-day events (at least the all-day ones)  will have one node per
@@ -16,9 +17,39 @@ function getEvents() {
     span.className = "boostlingo-icon fas " + "fa-spinner";
     span.style.marginRight = '5px';
     var targetSpan = e.querySelector('div div span:first-of-type');
+    console.log(targetSpan);
+    console.log(targetSpan.parentNode);
     targetSpan.before(span);
     iconMap[eventId(e)] = span;
+
+    var observer = new MutationObserver(function(mutationList, observer) {
+      console.log("observer!");
+      // given element, check if it's already got an icon
+      // if it does not, re-attach the icon span
+      mutationList.forEach(function(m) {
+          // console.log(m);
+        if (m.removedNodes.length > 0) {
+          console.log("REM", m.removedNodes[0].className);
+        }
+        if (m.addedNodes.length > 0) {
+          console.log("ADD", m.addedNodes[0].className);
+        }
+      });
+
+      var m = mutationList[0];
+      if (m.target && ! m.target.children[0].className.startsWith("boostlingo-icon")) {
+        console.log("eid: " + eventId(m.target) + " " + m.target.dataset.eventid);
+        console.log(m.target)
+        console.log(m.target.textContent)
+        // observer.disconnect()
+        // m.target.children[0].before(iconMap[eventId(m.target)]);
+        // observer.observe(m.target, {childList: true})
+      }
+    });
+    // observer.observe(span.parentNode, {childList: true})
+    observer.observe(span.parentNode, {childList: true})
   });
+
 
   return events;
 }
