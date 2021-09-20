@@ -14,6 +14,14 @@ chrome.runtime.onMessage.addListener(
         chrome.runtime.sendMessage({type: 'authResponse', status: resp.status, error: resp.error, expiresAt: resp.expiresAt})
         // sendResponse(resp);
         break;
+      case "queryBL":
+        // TODO: this is a hack for testing purposes
+        chrome.storage.local.get('auth', async function(items) {
+          const token = items.auth.token;
+          const appts = await getAppointments(token, "2021-09-27T00:00:00Z", "2021-10-01T00:00:00Z")
+          console.log(appts);
+        });
+        break;
       default:
         console.error("Unhandled request type", request.type);
     }
@@ -59,25 +67,26 @@ async function signin(email, password) {
 // http -v POST https://app.boostlingo.com/api/web/appointment/appointments start="$START" end="$END" authorization="Bearer $TOKEN"
 //
 // start and end are both RFC3339. SPA uses UTC/Z, unclear if that's required
-function getAppointments(token, start, end) {
+async function getAppointments(token, start, end) {
   const url = 'https://app.boostlingo.com/api/web/appointment/appointments';
-  const response = fetch(url, {
+  const raw = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authentication': "Bearer " + token
+      'Authorization': "Bearer " + token
     },
     body: JSON.stringify({start, end})
-  }).json();
+  })
+  const response = await raw.json();
 
-  const appointments = response.appointments.map(function(appt) {
+  const appointments = await response.appointments.map(function(appt) {
     return {
       endTime: appt.endTime,
       startTime: appt.startTime,
       id: appt.id,
       title: appt.title,
       state: appointmentStateToString(appt.state),
-      interpreters: interpreters.map(function(i) { return i.name; })
+      interpreters: appt.interpreters.map(function(i) { return i.name; })
     };
   })
 

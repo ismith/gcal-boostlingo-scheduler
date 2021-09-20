@@ -54,6 +54,13 @@ window.onload = function() {
   var logoutBtn = document.getElementById('logout');
   logoutBtn.onclick = logout;
 
+  var queryBLBtn = document.getElementById('queryBL');
+  queryBLBtn.onclick = function(e) {
+    chrome.runtime.sendMessage(
+      {type: "queryBL"}
+    );
+  }
+
   var auth = chrome.storage.local.get('auth', function(items) {
     if (chrome.runtime.lastError) {
       // not found, do nothing?
