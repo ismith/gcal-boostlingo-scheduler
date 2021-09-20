@@ -8,11 +8,18 @@ chrome.runtime.onMessage.addListener(
       case "auth":
         const resp = await signin(request.email, request.password);
         console.log("resp", resp);
-        sendResponse(resp);
+        if (resp.status === 200) {
+          chrome.storage.local.set({auth: resp})
+        }
+        chrome.runtime.sendMessage({type: 'authResponse', status: resp.status, error: resp.error, expiresAt: resp.expiresAt})
+        // sendResponse(resp);
         break;
       default:
         console.error("Unhandled request type", request.type);
     }
+
+    // sendResponse(Promise.resolve({status: 200, expiresAt: "NEVAR)"}))
+    return true;
   }
 );
 

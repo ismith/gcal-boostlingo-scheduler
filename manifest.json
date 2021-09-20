@@ -29,5 +29,8 @@
   },
   "host_permissions": [
     "https://app.boostlingo.com/*"
+  ],
+  "permissions":[
+    "storage"
   ]
 }
