@@ -10,5 +10,27 @@
       "css": [],
       "js": ["fontawesome-free.js", "gcal.js"]
     }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    {
+      "matches": ["*://calendar.google.com/*"],
+      "resources": ["boostlingo.js", "popup.js"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; default-src 'self'; connect-src https://app.boostlingo.com",
+    "sandbox": "sandbox allow-scripts allow-forms; script-src 'self'; default-src 'self'; connect-src https://app.boostlingo.com"
+  },
+  "background": {
+    "service_worker": "boostlingo.js"
+  },
+  "host_permissions": [
+    "https://app.boostlingo.com/*"
+  ],
+  "permissions":[
+    "storage"
   ]
 }
