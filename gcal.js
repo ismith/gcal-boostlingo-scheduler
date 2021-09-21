@@ -152,21 +152,6 @@ window.onload = function() {
   const events = initObserver();
   console.log(events);
 
-  // works okay for click, sucks for mouseover. Ok, fine.
-  events.forEach(function(e) {
-    let elt = e.querySelector(`div div span:first-of-type`)
-    console.log(eventId(e), elt);
-    elt.addEventListener('click', function(evt) {
-      // elt is a span to which we've added a pseudoelement; if the mouse is to
-      // the left of the span, it's over the pseudoelement.
-      if (evt.clientX < elt.getBoundingClientRect().left) {
-        console.log("click! " + eventId(e));
-        evt.preventDefault();
-        evt.stopPropagation();
-      }
-    });
-  });
-
   // demo: one event gets spinner replaced with circle-notch
   setIcon(events[11], 'fa-circle-notch');
 
