@@ -12,6 +12,7 @@ var iconNameMap = new Map();
 var iconTitleMap = new Map();
 const nullSpans = new Map();
 var getEventsCounter = 0;
+var logDates = true;
 
 function getRootNode() {
   let mainNode = document.querySelector(ROOT_QUERY);
@@ -77,7 +78,27 @@ function getEvents() {
     iconSpanMap.set(eventId(e), span);
   });
 
+  if (logDates && events.length > 0) {
+    logDates = false;
+    console.log("===================");
+    console.log(_getEventsSpan(events));
+    console.log("===================");
+  }
+
   return events;
+}
+
+function _getEventsSpan(events) {
+  const times = events.map(function(e) { return _eventTimes(e); });
+  const begins = times.map(function(e) { return e.begin; }).filter(function(e) { return e != null });
+  const ends = times.map(function(e) { return e.end; }).filter(function(e) { return e != null });
+
+  const retval = {
+    begin: new Date(Math.min(...begins)),
+    end: new Date(Math.max(...ends))
+  };
+
+  return retval;
 }
 
 // e is an event with data-eventid
@@ -153,11 +174,5 @@ window.onload = function() {
   console.log(events);
 
   // demo: one event gets spinner replaced with circle-notch
-  setIcon(events[11], 'fa-circle-notch');
-
-  /*
-  events.forEach(function(e) {
-    console.log(_eventTimes(e));
-  });
-  */
+  // setIcon(events[11], 'fa-circle-notch');
 }
