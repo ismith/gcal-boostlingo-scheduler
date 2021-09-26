@@ -10,6 +10,7 @@ var iconSpanMap = new Map();
 // map from eventid to the name of its icon
 var iconNameMap = new Map();
 var iconTitleMap = new Map();
+var eventDataMap = new Map();
 const nullSpans = new Map();
 var getEventsCounter = 0;
 var logDates = true;
@@ -38,7 +39,10 @@ function initObserver() {
 
 function getEvents() {
   getEventsCounter++;
-  // console.log("getEventsCounter: " + getEventsCounter);
+  if (getEventsCounter === 1000) {
+    console.log("getEventsCounter: " + getEventsCounter);
+    getEventsCounter = 0;
+  }
 
   // NB: multi-day events (at least the all-day ones)  will have one node per
   // day, with the same data-eventid
@@ -83,6 +87,38 @@ function getEvents() {
     console.log("===================");
     console.log(_getEventsSpan(events));
     console.log("===================");
+  }
+
+  // Docs suggest (10).minutes().ago() should work, but it's broken:
+  // https://github.com/datejs/Datejs/issues/140
+  const tenMinutesAgo = (Date.today()).setTimeToNow().add(-10).minutes();
+
+  const eventsNeedingData = events.filter(function(e) {
+    eventData = eventDataMap.get(eventId(e));
+    // console.log("E: " + eventId(e) + ", LR: " + JSON.stringify(eventData) + ".");
+    if (eventData === undefined) {
+      console.log("E LR: undefined")
+      eventDataMap.set(eventId(e), { lastRequested: new Date(Date.now()) });
+      return true
+    }
+
+    if (eventData.lastRequested < tenMinutesAgo) {
+      console.log("E LR: " + eventData.lastRequested + "TMA: " + tenMinutesAgo + "<: " + (eventData.lastRequested < tenMinutesAgo))
+      eventDataMap.set(eventId(e), { lastRequested: new Date(Date.now()) });
+      return true
+    }
+
+    return false;
+  });
+  if (eventsNeedingData.length > 0) {
+    const calSpan = _getEventsSpan(eventsNeedingData);
+    const msg = {
+      type: 'boostlingoRequest',
+      begin: calSpan.begin.toISOString(),
+      end: calSpan.end.toISOString(),
+    };
+    console.log("Request for boostlingo:", msg);
+    chrome.runtime.sendMessage(msg);
   }
 
   return events;

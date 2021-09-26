@@ -14,12 +14,19 @@ chrome.runtime.onMessage.addListener(
         chrome.runtime.sendMessage({type: 'authResponse', status: resp.status, error: resp.error, expiresAt: resp.expiresAt})
         // sendResponse(resp);
         break;
-      case "queryBL":
+      case "boostlingoRequest":
         // TODO: this is a hack for testing purposes
         chrome.storage.local.get('auth', async function(items) {
           const token = items.auth.token;
-          const appts = await getAppointments(token, "2021-09-27T00:00:00Z", "2021-10-01T00:00:00Z")
+          const appts = await getAppointments(token, request.begin, request.end)
           console.log(appts);
+          const msg = {
+            type: "boostlingoResponse",
+            appointments: appts
+          };
+          console.log(msg);
+          debugger;
+          chrome.runtime.sendMessage(msg);
         });
         break;
       default:
@@ -113,7 +120,9 @@ function appointmentStateToString(state) {
   return str;
 }
 
+// TODO: currently unused
 // http -v  https://app.boostlingo.com/api/web/appointment/appointment q=='{"appointmentId":$ID}' "authorization: Bearer $TOKEN"
+/*
 function getAppointment(token, id) {
   var url = 'https://app.boostlingo.com/api/web/appointment/appointment';
   const response = fetch(url + new URLSearchParams({
@@ -143,3 +152,4 @@ function getAppointment(token, id) {
 
   return appointment;
 }
+*/
