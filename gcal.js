@@ -37,6 +37,15 @@ function initObserver() {
   return getEvents();
 }
 
+function createEventData(e) {
+  const times = _eventTimes(e);
+  return {
+      lastRequested: new Date(Date.now()),
+      begin: times.begin,
+      end: times.end
+  }
+}
+
 function getEvents() {
   getEventsCounter++;
   if (getEventsCounter === 1000) {
@@ -50,7 +59,11 @@ function getEvents() {
     document.querySelectorAll('[data-eventid][data-eventchip]')
   );
 
-  events.forEach(function(e) {
+  events.filter(function(e) {
+    // TODO: filter on ynRLnc contains Needs RSVP
+    // might also be background-color isn't set?
+    return true;
+  }).forEach(function(e) {
     var targetSpan = e.querySelector('span.' + TITLE_SPAN_CLASS);
     if (targetSpan === null) {
       // I'm pretty sure based on count ('nullSpans.size' on my current calendar
@@ -98,13 +111,13 @@ function getEvents() {
     // console.log("E: " + eventId(e) + ", LR: " + JSON.stringify(eventData) + ".");
     if (eventData === undefined) {
       console.log("E LR: undefined")
-      eventDataMap.set(eventId(e), { lastRequested: new Date(Date.now()) });
+      eventDataMap.set(eventId(e), createEventData(e));
       return true
     }
 
     if (eventData.lastRequested < tenMinutesAgo) {
       console.log("E LR: " + eventData.lastRequested + "TMA: " + tenMinutesAgo + "<: " + (eventData.lastRequested < tenMinutesAgo))
-      eventDataMap.set(eventId(e), { lastRequested: new Date(Date.now()) });
+      eventDataMap.set(eventId(e), createEventData(e));
       return true
     }
 
@@ -204,10 +217,39 @@ function _eventTimes(e) {
 // want to call these functions from devtools?
 // https://stackoverflow.com/questions/48104433/how-to-import-es6-modules-in-content-script-for-chrome-extension
 // has some ideas.
+chrome.runtime.onMessage.addListener(
+  async function(request, sender, sendResponse) {
+    switch (request.type) {
+      case "boostlingoResponse":
+        const appts = request.appointments;
+        // debugger;
+
+        console.log("Received " + appts.length + " appointments from boostlingo.");
+        appts.forEach(function(appt) {
+          return true;
+          // iterate over eventDataMap
+          // find edm with edm.begin === appt.begin and edm.end >= appt.end and
+          // edm.end + 10 minutes >= appt.end
+          // set icon from that
+          // 
+          // there ... may be more than one, in the overlapping-events case.
+          // Check for zoom link, if possible, or score the events?
+          //
+          // TODO: filter events by ones I'm RSVP'd yes to
+        });
+        break;
+      default:
+        console.error("Unhandled request type", request.type);
+    }
+
+    // do nothing with sendResponse
+    return true;
+  });
 
 window.onload = function() {
+
   const events = initObserver();
-  console.log(events);
+  // console.log(events);
 
   // demo: one event gets spinner replaced with circle-notch
   // setIcon(events[11], 'fa-circle-notch');

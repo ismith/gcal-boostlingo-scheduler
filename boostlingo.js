@@ -24,9 +24,10 @@ chrome.runtime.onMessage.addListener(
             type: "boostlingoResponse",
             appointments: appts
           };
-          console.log(msg);
-          debugger;
-          chrome.runtime.sendMessage(msg);
+          // if you have more than one gcal tab open, we _could_ make this
+          // broadcast to all of them with chrome.tabs.query(...). Though I'd
+          // have to think harder about race conditions on the gcal.js side.
+          chrome.tabs.sendMessage(sender.tab.id, msg);
         });
         break;
       default:
@@ -87,13 +88,15 @@ async function getAppointments(token, start, end) {
   const response = await raw.json();
 
   const appointments = await response.appointments.map(function(appt) {
+    // null-check for interpreters
+    const interpreters = !appt.interpreters ? [] : appt.interpreters.map(function(i) { return i.name; });
     return {
       endTime: appt.endTime,
       startTime: appt.startTime,
       id: appt.id,
       title: appt.title,
       state: appointmentStateToString(appt.state),
-      interpreters: appt.interpreters.map(function(i) { return i.name; })
+      interpreters: interpreters
     };
   })
 
