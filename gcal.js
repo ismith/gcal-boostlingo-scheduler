@@ -165,7 +165,6 @@ function getEvent(id) {
 
 function setIcon(node, icon) {
   var span = iconSpanMap.get(eventId(node));
-  console.log("setIcon", span);
   iconNameMap.set(eventId(node), icon);
   if (span === undefined) {
     // I'm pretty sure based on count ('nullSpans.size' on my current calendar
@@ -173,7 +172,6 @@ function setIcon(node, icon) {
     // event will have 1 real and 4 'hidden' spans.) Fine for now, might be nice
     // to ignore better somehow.
     nullSpans.set(eventId(node), true);
-    console.log("IN setIcon: nullSpans size: " + nullSpans.size);
     return;
   }
   // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
@@ -214,6 +212,20 @@ function _eventTimes(e) {
   };
 }
 
+function eventBLMatch(evt, bl) {
+  blEnd = new Date(bl.endTime)
+  blStart = new Date(bl.startTime)
+  // begin times match exactly, BL event ends after end time
+  if (evt.begin === null || evt.end === null || blStart === null || blEnd === null) {
+    return false
+  }
+
+  return (Date.compare(evt.begin, blStart) ===  0 // ==
+    && Date.compare(evt.end, blEnd) !== 1); // <=
+    // removed this b/c I have a 25m meeting scheduled as a 1hr job
+    // && evt.end.add(30).minutes() >= Date.parse(bl.endTime));
+}
+
 // want to call these functions from devtools?
 // https://stackoverflow.com/questions/48104433/how-to-import-es6-modules-in-content-script-for-chrome-extension
 // has some ideas.
@@ -226,17 +238,17 @@ chrome.runtime.onMessage.addListener(
 
         console.log("Received " + appts.length + " appointments from boostlingo.");
         appts.forEach(function(appt) {
-          return true;
-          // iterate over eventDataMap
-          // find edm with edm.begin === appt.begin and edm.end >= appt.end and
-          // edm.end + 10 minutes >= appt.end
-          // set icon from that
-          // 
-          // there ... may be more than one, in the overlapping-events case.
-          // Check for zoom link, if possible, or score the events?
-          //
-          // TODO: filter events by ones I'm RSVP'd yes to
+          for ([eid, evt] of eventDataMap) {
+            if (eventBLMatch(evt, appt)) {
+              // TODO: decouple appt.state from icon name
+              iconNameMap.set(eid, appt.state);
+              // TODO: add zoom id to overlay
+              // TODO: icon if zoom mismatch?
+            }
+          }
         });
+        // redraw
+        getEvents();
         break;
       default:
         console.error("Unhandled request type", request.type);
@@ -247,7 +259,6 @@ chrome.runtime.onMessage.addListener(
   });
 
 window.onload = function() {
-
   const events = initObserver();
   // console.log(events);
 
