@@ -38,6 +38,15 @@ function initObserver() {
   return getEvents();
 }
 
+// for editing the modal ...
+// data-eventid and classes jefcFd is (i think) the whole modal
+// pdqVLc
+// Mz3isd
+// #xDtlDlgCt > div.kMp0We.OcVpRe.IyS93d.N1DhNb is the google header
+// below it, add a div? with kMp0We.OcVpRe?
+//
+// alternative: can bootstrap or something put a popover on the span?
+
 function createEventData(e) {
   const times = _eventTimes(e);
   return {
@@ -90,9 +99,19 @@ function getEvents() {
     }
 
     span = document.createElement('span');
-    span.className = "boostlingo-icon fas " + iconNameMap.get(eventId(e));
+    // bootstrap abandoned - onhover doesn't trigger
+    span.dataset.toggle='tooltip';
+    span.dataset.title='hello';
+    span.dataset.placement="left";
+    // span.dataset.template='<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>';
+    span.dataset.content='world!';
+    span.dataset.trigger='hover focus click';
+    // span.onmouseover = function(evt) { console.log("show"); $(evt.target).tooltip("show");}
+    span.className = "tooltip boostlingo-icon fas " + iconNameMap.get(eventId(e));
     span.style.marginRight = '5px';
     targetSpan.before(span);
+    $(span).tooltip();
+    //span.popover()
     iconSpanMap.set(eventId(e), span);
   });
 
@@ -176,7 +195,7 @@ function setIcon(node, icon) {
     return;
   }
   // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
-  span.className = "boostlingo-icon fas " + icon;
+  span.className = "tooltip boostlingo-icon fas " + icon;
 }
 
 // QUESTIONABLE RELIABILITY
@@ -263,6 +282,19 @@ chrome.runtime.onMessage.addListener(
   });
 
 window.onload = function() {
+
+  var jq = document.createElement("script");
+  jq.src=chrome.runtime.getURL("third-party/jquery.min.js");
+  document.getElementsByTagName('head')[0].appendChild(jq);
+
+  var bootstrap = document.createElement("script");
+  bootstrap.src=chrome.runtime.getURL("third-party/bootstrap.bundle.min.js");
+  document.getElementsByTagName('head')[0].appendChild(bootstrap);
+
+  var bsCSS = document.createElement("link");
+  bsCSS.rel = chrome.runtime.getURL("third-party/bootstrap.min.css");
+  document.getElementsByTagName('head')[0].appendChild(bsCSS);
+
   const events = initObserver();
   // console.log(events);
 
