@@ -11,6 +11,7 @@ var iconSpanMap = new Map();
 var iconNameMap = new Map();
 var iconTitleMap = new Map();
 var eventDataMap = new Map();
+var blDataMap = new Map();
 const nullSpans = new Map();
 var getEventsCounter = 0;
 var logDates = true;
@@ -182,9 +183,6 @@ function setIcon(node, icon) {
 // I don't know what all day or cross-day events look like. This is fine.
 //
 // NB: Date _must_ be date.js, the stdlib's Date.parse is not correct here.
-//
-// TODO: breaks on multi-day events (["September 6 [emdash] 10", "2021"]), can
-// we handle that?
 function _eventTimes(e) {
   // first div, will be like: "3pm to 3:30pm, ❇️ Ian / Ben 1/1, Ian Smith,
   // Accepted, No location, September 9, 2021"
@@ -215,6 +213,12 @@ function _eventTimes(e) {
 function eventBLMatch(evt, bl) {
   blEnd = new Date(bl.endTime)
   blStart = new Date(bl.startTime)
+
+  if (bl.endTime === undefined || bl.startTime === undefined) {
+    console.log("endTime or startTime undefined - empty object from BL?", bl);
+    return false
+  }
+
   // begin times match exactly, BL event ends after end time
   if (evt.begin === null || evt.end === null || blStart === null || blEnd === null) {
     return false
@@ -242,13 +246,13 @@ chrome.runtime.onMessage.addListener(
             if (eventBLMatch(evt, appt)) {
               // TODO: decouple appt.state from icon name
               iconNameMap.set(eid, appt.state);
+              setIcon(getEvent(eid), appt.state);
+              blDataMap.set(eid, appt);
               // TODO: add zoom id to overlay
               // TODO: icon if zoom mismatch?
             }
           }
         });
-        // redraw
-        getEvents();
         break;
       default:
         console.error("Unhandled request type", request.type);

@@ -87,10 +87,13 @@ async function getAppointments(token, start, end) {
   })
   const response = await raw.json();
 
-  const appointments = await response.appointments.map(function(appt) {
+  const appointments = await Promise.all(response.appointments.map(async function(appt) {
     // null-check for interpreters
     const interpreters = !appt.interpreters ? [] : appt.interpreters.map(function(i) { return i.name; });
-    return {
+
+    const details = await getAppointment(token, appt.id);
+
+    const apptObj = {
       endTime: appt.endTime,
       startTime: appt.startTime,
       id: appt.id,
@@ -98,7 +101,12 @@ async function getAppointments(token, start, end) {
       state: appointmentStateToString(appt.state),
       interpreters: interpreters
     };
-  })
+
+    return {
+      ...apptObj,
+      ...details
+    }
+  }));
 
   return appointments;
 }
@@ -126,20 +134,20 @@ function appointmentStateToString(state) {
   return str;
 }
 
-// TODO: currently unused
 // http -v  https://app.boostlingo.com/api/web/appointment/appointment q=='{"appointmentId":$ID}' "authorization: Bearer $TOKEN"
-/*
-function getAppointment(token, id) {
+async function getAppointment(token, id) {
   var url = 'https://app.boostlingo.com/api/web/appointment/appointment';
-  const response = fetch(url + new URLSearchParams({
+  const raw = await fetch(url + '?' + new URLSearchParams({
       q: JSON.stringify({appointmentId: id})
     }),
     {
     method: "GET",
     headers: {
-      'Authentication': "Bearer " + token
+      'Authorization': "Bearer " + token
     }
-  }).json();
+  });
+
+  const response = await raw.json();
 
   // jq: .customForm.fields[] | select(.label == "Private Notes:").value
   const privateNotes = response.customForm.fields.find(function(f) {
@@ -147,15 +155,14 @@ function getAppointment(token, id) {
   }).value;
 
   const appointment = {
-    state: response.appointmentStateName,
+    //state: response.appointmentStateName,
     subject: response.subject,
     description: response.description,
     privateNotes: privateNotes,
-    interpreters: response.interpreters.map(function(i) { return i.name }),
-    endTime: response.endTime,
-    startTime: response.startTime
+    //interpreters: response.interpreters.map(function(i) { return i.name }),
+    //endTime: response.endTime,
+    //startTime: response.startTime
   };
 
   return appointment;
 }
-*/
