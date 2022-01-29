@@ -12,6 +12,7 @@ var iconNameMap = new Map();
 var iconTitleMap = new Map();
 var eventDataMap = new Map();
 var blDataMap = new Map();
+var settingsMap = new Map();
 const nullSpans = new Map();
 var getEventsCounter = 0;
 var logDates = true;
@@ -22,20 +23,29 @@ function getRootNode() {
 }
 
 function initObserver() {
-  const rootNode = getRootNode();
-  const observer = new MutationObserver(getEvents);
-  observer.observe(rootNode, {
-    attributes: true,
-    childList: true,
-    characterData: false,
-    subtree: true,
-  });
-  observer.observe(document.getElementById(DETAIL_ROOT_ID), {
-    subtree: true,
-    childList: true,
-  });
+  var warnOnZoomLinkMismatch = chrome.storage.local.get('warnOnZoomLinkMismatch', function(items) {
+    var warnOnZoomLinkMismatch = undefined;
+    if (chrome.runtime.lastError) {
+      settingsMap.set('warnOnZoomLinkMismatch', false);
+    } else if (items.warnOnZoomLinkMismatch) {
+      settingsMap.set('warnOnZoomLinkMismatch', items.warnOnZoomLinkMismatch);
+    }
+    
+    const rootNode = getRootNode();
+    const observer = new MutationObserver(getEvents);
+    observer.observe(rootNode, {
+      attributes: true,
+      childList: true,
+      characterData: false,
+      subtree: true,
+    });
+    observer.observe(document.getElementById(DETAIL_ROOT_ID), {
+      subtree: true,
+      childList: true,
+    });
 
-  return getEvents();
+    return getEvents();
+  });
 }
 
 // for editing the modal ...
@@ -87,7 +97,7 @@ function setDetails() {
     && (blText.includes(gcalZoomLink));
 
   let warnings = [];
-  if (! blZoomLinkMatches) {
+  if (! blZoomLinkMatches && settingsMap.get("warnOnZoomLinkMismatch")) {
     console.log("BL, GCAL", blText, gcalZoomLink)
 
     warnings.push("Zoom link in Boostlingo is missing or wrong.")

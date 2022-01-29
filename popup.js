@@ -22,6 +22,14 @@ function logout(e) {
   loginStatus.style.border = 'none';
 }
 
+function settingsForm(e) {
+  e.preventDefault();
+
+  let form = e.srcElement;
+  let warnOnZoomLinkMismatch = e.srcElement['warnOnZoomLinkMismatch'].checked;
+  chrome.storage.local.set({warnOnZoomLinkMismatch: warnOnZoomLinkMismatch});
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     switch (request.type) {
@@ -40,6 +48,9 @@ chrome.runtime.onMessage.addListener(
           loginStatus.textContent = "Error: " + request.error;
         }
         break;
+      case 'boostlingoRequest':
+        // do nothing - this is handled by other listeners
+        break;
       default:
         console.error("Unhandled request type", request.type);
     }
@@ -54,12 +65,8 @@ window.onload = function() {
   var logoutBtn = document.getElementById('logout');
   logoutBtn.onclick = logout;
 
-  var queryBLBtn = document.getElementById('queryBL');
-  queryBLBtn.onclick = function(e) {
-    chrome.runtime.sendMessage(
-      {type: "queryBL"}
-    );
-  }
+  var settingsF = document.getElementById('settingsForm');
+  settingsF.onsubmit = settingsForm;
 
   var auth = chrome.storage.local.get('auth', function(items) {
     if (chrome.runtime.lastError) {
@@ -70,6 +77,14 @@ window.onload = function() {
         loginStatus.textContent = "Auth good until: " + items.auth.expiresAt;
         loginStatus.style.color = "blue";
         loginStatus.style.border = "1px solid blue";
+    }
+  });
+
+  var warnOnZoomLinkMismatch = chrome.storage.local.get('warnOnZoomLinkMismatch', function(items) {
+    if (chrome.runtime.lastError) {
+      // not found, do nothing?
+    } else if (items.warnOnZoomLinkMismatch !== undefined) {
+        document.getElementById("warnOnZoomLinkMismatch").checked = (items.warnOnZoomLinkMismatch);
     }
   });
 };
