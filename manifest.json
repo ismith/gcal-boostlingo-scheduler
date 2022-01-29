@@ -7,11 +7,9 @@
   "content_scripts": [
     {
       "matches": ["*://calendar.google.com/*"],
-      "css": ["third-party/bootstrap.min.css"],
+      "css": [],
       "js": ["date.js",
            "fontawesome-free.js",
-           "third-party/jquery.min.js",
-           "third-party/bootstrap.bundle.min.js",
            "gcal.js"]
     }
   ],
@@ -21,10 +19,7 @@
   "web_accessible_resources": [
     {
       "matches": ["*://calendar.google.com/*"],
-      "resources": ["boostlingo.js", "popup.js",
-           "third-party/jquery.min.js",
-           "third-party/bootstrap.bundle.min.js"
-      ]
+      "resources": ["boostlingo.js", "popup.js"]
     }
   ],
   "content_security_policy": {

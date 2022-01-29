@@ -47,6 +47,65 @@ function initObserver() {
 //
 // alternative: can bootstrap or something put a popover on the span?
 
+// 
+function setDetails() {
+  const targetDivs = document.querySelectorAll('[data-eventid].jefcFd > .pdqVLc div.Mz3isd div.kMp0We.OcVpRe');
+
+  if (targetDivs.length === 0) { console.log("no target divs"); return }
+
+  const targetDiv = targetDivs[0];
+
+  if (targetDiv.nextSibling !== undefined &&
+      targetDiv.nextSibling !== null &&
+      targetDiv.nextSibling.className.includes("boostlingo-details")) {
+    return
+  }
+
+  const eventid=targetDiv.parentElement.parentElement.parentElement.dataset.eventid;
+  const newDiv = document.createElement("div");
+  const blData = blDataMap.get(eventid);
+  if (blData === undefined) {
+    console.log("Not an interpreted event");
+    return;
+  }
+
+  const gcalZoomLink = Array.from(targetDiv.parentElement.querySelectorAll("a")).map(function(e) {
+    return e.href
+  }).filter(function(s) {
+    return s.includes("zoom.us/j")
+  }).map(function(s) {
+    const u = new URL(s);
+    return u.searchParams.get('q')
+  })[0];
+
+  const blText = [
+    blData.description,
+    blData.subject,
+    blData.privateNotes].join(" ")
+
+  const blZoomLinkMatches = (gcalZoomLink !== undefined)
+    && (blText.includes(gcalZoomLink));
+
+  let warnings = [];
+  if (! blZoomLinkMatches) {
+    console.log("BL, GCAL", blText, gcalZoomLink)
+
+    warnings.push("Zoom link in Boostlingo is missing or wrong.")
+  }
+  warnings = warnings.map(function(s) { return "WARNING: " + s });
+
+  // TODO: this needs cleanup, and some better templating would be nice.
+  // TODO: this also needs to be configurable - do you want this warning, or
+  // not?
+  newDiv.innerHTML = `<div aria-hidden="true" class="nGJqzd OLw7vb"><span class="DPvwYc rL6ose" aria-hidden="true"><div class="T7dzVe" style=""></div></span></div> <div class="NI2kfb "><div class="agOyMd Q3pZ0e"><div class="JAPzS"><span role="heading" aria-level="1" id="rAECCd">Interpreting</span></div><div class="DN1TJ fX8Pqc CyPPBf">${blData.interpreters.join(", ")}<br>${warnings.join("<br>")}</div></div></div>`
+
+
+  newDiv.style="color: white;";
+  newDiv.className="boostlingo-details kMp0We 0cVpRe";
+
+  targetDiv.after(newDiv);
+}
+
 function createEventData(e) {
   const times = _eventTimes(e);
   return {
@@ -99,22 +158,9 @@ function getEvents() {
     }
 
     span = document.createElement('span');
-    // bootstrap abandoned - onhover doesn't trigger
-    span.dataset.toggle='popover';
-    // span.dataset.selector='span.' + TITLE_SPAN_CLASS;
-    span.dataset.title='hello';
-    span.dataset.content='world';
-    span.dataset.container='body';
-    // span.dataset.placement="left";
-    // span.dataset.template='<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>';
-    span.dataset.content='world!';
-    span.dataset.trigger='mouseover hover focus click';
-    // span.onmouseover = function(evt) { console.log("show"); $(evt.target).tooltip("show");}
     span.className = "boostlingo-icon fas " + iconNameMap.get(eventId(e));
     span.style.marginRight = '5px';
     targetSpan.before(span);
-    $(span).popover("show");
-    //span.popover()
     iconSpanMap.set(eventId(e), span);
   });
 
@@ -146,7 +192,7 @@ function getEvents() {
 
     return false;
   });
-  if (false && eventsNeedingData.length > 0) {
+  if (eventsNeedingData.length > 0) {
     const calSpan = _getEventsSpan(eventsNeedingData);
     const msg = {
       type: 'boostlingoRequest',
@@ -156,6 +202,8 @@ function getEvents() {
     console.log("Request for boostlingo:", msg);
     chrome.runtime.sendMessage(msg);
   }
+
+  setDetails();
 
   return events;
 }
@@ -270,6 +318,7 @@ chrome.runtime.onMessage.addListener(
               // TODO: decouple appt.state from icon name
               iconNameMap.set(eid, appt.state);
               setIcon(getEvent(eid), appt.state);
+              console.log("HI, bldm set");
               blDataMap.set(eid, appt);
               // TODO: add zoom id to overlay
               // TODO: icon if zoom mismatch?
@@ -287,6 +336,7 @@ chrome.runtime.onMessage.addListener(
 
 window.onload = function() {
 
+  /*
   var jq = document.createElement("script");
   jq.src=chrome.runtime.getURL("third-party/jquery.min.js");
   document.getElementsByTagName('head')[0].appendChild(jq);
@@ -298,11 +348,12 @@ window.onload = function() {
   var bsCSS = document.createElement("link");
   bsCSS.rel = chrome.runtime.getURL("third-party/bootstrap.min.css");
   document.getElementsByTagName('head')[0].appendChild(bsCSS);
+ */
 
   const events = initObserver();
   // console.log(events);
 
-  $(document.body).popover({ selector: "[data-toggle='popover']" });
+  // $(document.body).popover({ selector: "[data-toggle='popover']" });
   // demo: one event gets spinner replaced with circle-notch
   // setIcon(events[11], 'fa-circle-notch');
 }
