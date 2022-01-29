@@ -152,7 +152,7 @@ function getEvents() {
 
     if (iconNameMap.get(eventId(e)) === null ||
         iconNameMap.get(eventId(e)) === undefined) {
-      iconNameMap.set(eventId(e), "fa-spinner");
+      iconNameMap.set(eventId(e), "fa-circle");
       const spanTitle = e.querySelector('span.' + TITLE_SPAN_CLASS).textContent;
       iconTitleMap.set(eventId(e), spanTitle);
     }
