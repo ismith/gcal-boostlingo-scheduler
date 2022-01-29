@@ -100,17 +100,20 @@ function getEvents() {
 
     span = document.createElement('span');
     // bootstrap abandoned - onhover doesn't trigger
-    span.dataset.toggle='tooltip';
+    span.dataset.toggle='popover';
+    // span.dataset.selector='span.' + TITLE_SPAN_CLASS;
     span.dataset.title='hello';
-    span.dataset.placement="left";
+    span.dataset.content='world';
+    span.dataset.container='body';
+    // span.dataset.placement="left";
     // span.dataset.template='<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>';
     span.dataset.content='world!';
-    span.dataset.trigger='hover focus click';
+    span.dataset.trigger='mouseover hover focus click';
     // span.onmouseover = function(evt) { console.log("show"); $(evt.target).tooltip("show");}
-    span.className = "tooltip boostlingo-icon fas " + iconNameMap.get(eventId(e));
+    span.className = "boostlingo-icon fas " + iconNameMap.get(eventId(e));
     span.style.marginRight = '5px';
     targetSpan.before(span);
-    $(span).tooltip();
+    $(span).popover("show");
     //span.popover()
     iconSpanMap.set(eventId(e), span);
   });
@@ -143,7 +146,7 @@ function getEvents() {
 
     return false;
   });
-  if (eventsNeedingData.length > 0) {
+  if (false && eventsNeedingData.length > 0) {
     const calSpan = _getEventsSpan(eventsNeedingData);
     const msg = {
       type: 'boostlingoRequest',
@@ -195,7 +198,7 @@ function setIcon(node, icon) {
     return;
   }
   // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
-  span.className = "tooltip boostlingo-icon fas " + icon;
+  span.className = "boostlingo-icon fas " + icon;
 }
 
 // QUESTIONABLE RELIABILITY
@@ -260,6 +263,7 @@ chrome.runtime.onMessage.addListener(
         // debugger;
 
         console.log("Received " + appts.length + " appointments from boostlingo.");
+        console.log(appts);
         appts.forEach(function(appt) {
           for ([eid, evt] of eventDataMap) {
             if (eventBLMatch(evt, appt)) {
@@ -298,6 +302,7 @@ window.onload = function() {
   const events = initObserver();
   // console.log(events);
 
+  $(document.body).popover({ selector: "[data-toggle='popover']" });
   // demo: one event gets spinner replaced with circle-notch
   // setIcon(events[11], 'fa-circle-notch');
 }
