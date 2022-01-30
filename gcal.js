@@ -56,6 +56,10 @@ function setDetails() {
 
   const targetDiv = targetDivs[0];
 
+  if ( targetDiv === undefined ) {
+    return;
+  }
+
   if (
     targetDiv.nextSibling !== undefined &&
     targetDiv.nextSibling !== null &&
