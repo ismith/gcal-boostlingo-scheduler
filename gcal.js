@@ -167,6 +167,13 @@ function getEvents() {
     let span = document.createElement("span");
     span.className = "boostlingo-icon " + iconNameMap.get(eventId(e));
     span.style.marginRight = "5px";
+
+    tippy(span, {
+      content: "hello world!",
+      interactive: true,
+      trigger: 'mouseover mouseenter click',
+    })
+
     targetSpan.before(span);
     iconSpanMap.set(eventId(e), span);
   });
@@ -346,4 +353,5 @@ chrome.runtime.onMessage.addListener(async function (
 
 window.onload = function () {
   initObserver();
+  document.tippy = tippy;
 };
