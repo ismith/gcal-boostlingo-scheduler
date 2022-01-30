@@ -21,10 +21,9 @@ function getRootNode() {
 }
 
 function initObserver() {
-  var warnOnZoomLinkMismatch = chrome.storage.local.get(
+  chrome.storage.local.get(
     "warnOnZoomLinkMismatch",
     function (items) {
-      var warnOnZoomLinkMismatch = undefined;
       if (chrome.runtime.lastError) {
         settingsMap.set("warnOnZoomLinkMismatch", false);
       } else if (items.warnOnZoomLinkMismatch) {
@@ -161,7 +160,7 @@ function getEvents() {
       iconTitleMap.set(eventId(e), spanTitle);
     }
 
-    span = document.createElement("span");
+    let span = document.createElement("span");
     span.className = "boostlingo-icon " + iconNameMap.get(eventId(e));
     span.style.marginRight = "5px";
     targetSpan.before(span);
@@ -173,7 +172,7 @@ function getEvents() {
   const tenMinutesAgo = Date.today().setTimeToNow().add(-10).minutes();
 
   const eventsNeedingData = events.filter(function (e) {
-    eventData = eventDataMap.get(eventId(e));
+    const eventData = eventDataMap.get(eventId(e));
     if (eventData === undefined) {
       eventDataMap.set(eventId(e), createEventData(e));
       return true;
@@ -226,11 +225,6 @@ function _getEventsSpan(events) {
   };
 
   return retval;
-}
-
-// e is an event with data-eventid
-function eventName(e) {
-  return e.querySelector("span span").textContent;
 }
 
 function eventId(e) {
@@ -287,13 +281,13 @@ function _eventTimes(e) {
 }
 
 function eventBLMatch(evt, bl) {
-  blEnd = new Date(bl.endTime);
-  blStart = new Date(bl.startTime);
-
   if (bl.endTime === undefined || bl.startTime === undefined) {
     console.log("endTime or startTime undefined - empty object from BL?", bl);
     return false;
   }
+
+  const blEnd = new Date(bl.endTime);
+  const blStart = new Date(bl.startTime);
 
   // begin times match exactly, BL event ends after end time
   if (
@@ -316,20 +310,17 @@ function eventBLMatch(evt, bl) {
 // https://stackoverflow.com/questions/48104433/how-to-import-es6-modules-in-content-script-for-chrome-extension
 // has some ideas.
 chrome.runtime.onMessage.addListener(async function (
-  request,
-  sender,
-  sendResponse
+  request
 ) {
   switch (request.type) {
-    case "boostlingoResponse":
+    case "boostlingoResponse": {
       const appts = request.appointments;
-      // debugger;
 
       console.log(
         "Received " + appts.length + " appointments from boostlingo."
       );
       appts.forEach(function (appt) {
-        for ([eid, evt] of eventDataMap) {
+        for (const [eid, evt] of eventDataMap) {
           if (eventBLMatch(evt, appt)) {
             // TODO: decouple appt.state from icon name
             iconNameMap.set(eid, appt.state);
@@ -338,7 +329,9 @@ chrome.runtime.onMessage.addListener(async function (
           }
         }
       });
+
       break;
+    }
     default:
       console.error("Unhandled request type", request.type);
   }
@@ -348,5 +341,5 @@ chrome.runtime.onMessage.addListener(async function (
 });
 
 window.onload = function () {
-  const events = initObserver();
+  initObserver();
 };

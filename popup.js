@@ -26,11 +26,11 @@ function settingsForm(e) {
   e.preventDefault();
 
   let form = e.srcElement;
-  let warnOnZoomLinkMismatch = e.srcElement["warnOnZoomLinkMismatch"].checked;
+  let warnOnZoomLinkMismatch = form["warnOnZoomLinkMismatch"].checked;
   chrome.storage.local.set({ warnOnZoomLinkMismatch: warnOnZoomLinkMismatch });
 }
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (request) {
   switch (request.type) {
     // I don't know why I can't get the callback in sendMessage to work, so  here's a
     // workaround
@@ -65,7 +65,7 @@ window.onload = function () {
   var settingsF = document.getElementById("settingsForm");
   settingsF.onsubmit = settingsForm;
 
-  var auth = chrome.storage.local.get("auth", function (items) {
+  chrome.storage.local.get("auth", function (items) {
     if (chrome.runtime.lastError) {
       // not found, do nothing?
     } else if (items.auth !== undefined) {
@@ -77,7 +77,7 @@ window.onload = function () {
     }
   });
 
-  var warnOnZoomLinkMismatch = chrome.storage.local.get(
+  chrome.storage.local.get(
     "warnOnZoomLinkMismatch",
     function (items) {
       if (chrome.runtime.lastError) {

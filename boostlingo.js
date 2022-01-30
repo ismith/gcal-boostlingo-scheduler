@@ -1,10 +1,9 @@
 chrome.runtime.onMessage.addListener(async function (
   request,
-  sender,
-  sendResponse
+  sender
 ) {
   switch (request.type) {
-    case "auth":
+    case "auth": {
       const resp = await signin(request.email, request.password);
       if (resp.status === 200) {
         chrome.storage.local.set({ auth: resp });
@@ -17,6 +16,7 @@ chrome.runtime.onMessage.addListener(async function (
       });
       // sendResponse(resp);
       break;
+    }
     case "boostlingoRequest":
       chrome.storage.local.get("auth", async function (items) {
         const token = items.auth.token;
@@ -42,7 +42,6 @@ chrome.runtime.onMessage.addListener(async function (
 // http POST https://app.boostlingo.com/api/web/account/signin email=$EMAIL password="$PASSWORD"
 async function signin(email, password) {
   const url = "https://app.boostlingo.com/api/web/account/signin";
-  const body = JSON.stringify({ email, password });
   const raw = await fetch(url, {
     method: "POST",
     headers: {
