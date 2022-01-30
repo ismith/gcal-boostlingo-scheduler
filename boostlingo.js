@@ -116,15 +116,15 @@ function appointmentStateToString(state) {
   switch(state) {
     case 4:
       str = "Confirmation Pending By Admin";
-      str = "fa-tasks";
+      str = "fas fa-tasks";
       break;
     case 5:
       str = "Scheduled";
-      str = "fa-american-sign-language-interpreting";
+      str = "fas fa-american-sign-language-interpreting";
       break;
     case 7:
       str = "Completed";
-      str = "fa-check";
+      str = "fas fa-check";
       break;
     default:
       console.log("Unhandled appointment.state: " + str + ".");

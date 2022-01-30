@@ -162,13 +162,13 @@ function getEvents() {
 
     if (iconNameMap.get(eventId(e)) === null ||
         iconNameMap.get(eventId(e)) === undefined) {
-      iconNameMap.set(eventId(e), "fa-circle");
+      iconNameMap.set(eventId(e), "far fa-circle");
       const spanTitle = e.querySelector('span.' + TITLE_SPAN_CLASS).textContent;
       iconTitleMap.set(eventId(e), spanTitle);
     }
 
     span = document.createElement('span');
-    span.className = "boostlingo-icon fas " + iconNameMap.get(eventId(e));
+    span.className = "boostlingo-icon " + iconNameMap.get(eventId(e));
     span.style.marginRight = '5px';
     targetSpan.before(span);
     iconSpanMap.set(eventId(e), span);
@@ -256,7 +256,7 @@ function setIcon(node, icon) {
     return;
   }
   // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
-  span.className = "boostlingo-icon fas " + icon;
+  span.className = "boostlingo-icon " + icon;
 }
 
 // QUESTIONABLE RELIABILITY
