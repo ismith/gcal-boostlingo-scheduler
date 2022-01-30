@@ -1,7 +1,5 @@
 function submitLogin(e) {
   e.preventDefault();
-  console.log("SL");
-  console.log(e);
 
   let form = e.srcElement;
   let email = e.srcElement['email'].value;
@@ -56,7 +54,6 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
-console.log("HI bl.js");
 
 window.onload = function() {
   var f = document.getElementById('boostlingoLoginForm');

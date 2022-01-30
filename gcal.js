@@ -15,7 +15,6 @@ var blDataMap = new Map();
 var settingsMap = new Map();
 const nullSpans = new Map();
 var getEventsCounter = 0;
-var logDates = true;
 
 function getRootNode() {
   let mainNode = document.querySelector(ROOT_QUERY);
@@ -48,20 +47,9 @@ function initObserver() {
   });
 }
 
-// for editing the modal ...
-// data-eventid and classes jefcFd is (i think) the whole modal
-// pdqVLc
-// Mz3isd
-// #xDtlDlgCt > div.kMp0We.OcVpRe.IyS93d.N1DhNb is the google header
-// below it, add a div? with kMp0We.OcVpRe?
-//
-// alternative: can bootstrap or something put a popover on the span?
-
-// 
+// sets details on the popover/modal of a calendar event
 function setDetails() {
   const targetDivs = document.querySelectorAll('[data-eventid].jefcFd > .pdqVLc div.Mz3isd div.kMp0We.OcVpRe');
-
-  if (targetDivs.length === 0) { console.log("no target divs"); return }
 
   const targetDiv = targetDivs[0];
 
@@ -75,7 +63,6 @@ function setDetails() {
   const newDiv = document.createElement("div");
   const blData = blDataMap.get(eventid);
   if (blData === undefined) {
-    console.log("Not an interpreted event");
     return;
   }
 
@@ -98,8 +85,6 @@ function setDetails() {
 
   let warnings = [];
   if (! blZoomLinkMatches && settingsMap.get("warnOnZoomLinkMismatch")) {
-    console.log("BL, GCAL", blText, gcalZoomLink)
-
     warnings.push("Zoom link in Boostlingo is missing or wrong.")
   }
   warnings = warnings.map(function(s) { return "WARNING: " + s });
@@ -150,7 +135,6 @@ function getEvents() {
       // event will have 1 real and 4 'hidden' spans.) Fine for now, might be nice
       // to ignore better somehow.
       nullSpans.set(eventId(e), true);
-      // console.log("nullSpans size: " + nullSpans.size);
       return;
     }
 
@@ -174,28 +158,18 @@ function getEvents() {
     iconSpanMap.set(eventId(e), span);
   });
 
-  if (logDates && events.length > 0) {
-    logDates = false;
-    console.log("===================");
-    console.log(_getEventsSpan(events));
-    console.log("===================");
-  }
-
   // Docs suggest (10).minutes().ago() should work, but it's broken:
   // https://github.com/datejs/Datejs/issues/140
   const tenMinutesAgo = (Date.today()).setTimeToNow().add(-10).minutes();
 
   const eventsNeedingData = events.filter(function(e) {
     eventData = eventDataMap.get(eventId(e));
-    // console.log("E: " + eventId(e) + ", LR: " + JSON.stringify(eventData) + ".");
     if (eventData === undefined) {
-      console.log("E LR: undefined")
       eventDataMap.set(eventId(e), createEventData(e));
       return true
     }
 
     if (eventData.lastRequested < tenMinutesAgo) {
-      console.log("E LR: " + eventData.lastRequested + "TMA: " + tenMinutesAgo + "<: " + (eventData.lastRequested < tenMinutesAgo))
       eventDataMap.set(eventId(e), createEventData(e));
       return true
     }
@@ -209,7 +183,6 @@ function getEvents() {
       begin: calSpan.begin.toISOString(),
       end: calSpan.end.toISOString(),
     };
-    console.log("Request for boostlingo:", msg);
     chrome.runtime.sendMessage(msg);
   }
 
@@ -321,17 +294,13 @@ chrome.runtime.onMessage.addListener(
         // debugger;
 
         console.log("Received " + appts.length + " appointments from boostlingo.");
-        console.log(appts);
         appts.forEach(function(appt) {
           for ([eid, evt] of eventDataMap) {
             if (eventBLMatch(evt, appt)) {
               // TODO: decouple appt.state from icon name
               iconNameMap.set(eid, appt.state);
               setIcon(getEvent(eid), appt.state);
-              console.log("HI, bldm set");
               blDataMap.set(eid, appt);
-              // TODO: add zoom id to overlay
-              // TODO: icon if zoom mismatch?
             }
           }
         });
@@ -345,25 +314,5 @@ chrome.runtime.onMessage.addListener(
   });
 
 window.onload = function() {
-
-  /*
-  var jq = document.createElement("script");
-  jq.src=chrome.runtime.getURL("third-party/jquery.min.js");
-  document.getElementsByTagName('head')[0].appendChild(jq);
-
-  var bootstrap = document.createElement("script");
-  bootstrap.src=chrome.runtime.getURL("third-party/bootstrap.bundle.min.js");
-  document.getElementsByTagName('head')[0].appendChild(bootstrap);
-
-  var bsCSS = document.createElement("link");
-  bsCSS.rel = chrome.runtime.getURL("third-party/bootstrap.min.css");
-  document.getElementsByTagName('head')[0].appendChild(bsCSS);
- */
-
   const events = initObserver();
-  // console.log(events);
-
-  // $(document.body).popover({ selector: "[data-toggle='popover']" });
-  // demo: one event gets spinner replaced with circle-notch
-  // setIcon(events[11], 'fa-circle-notch');
 }

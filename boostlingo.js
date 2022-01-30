@@ -1,13 +1,8 @@
-console.log("HI background job");
 chrome.runtime.onMessage.addListener(
   async function(request, sender, sendResponse) {
-    console.log(sender);
-    console.log(request);
-
     switch (request.type) {
       case "auth":
         const resp = await signin(request.email, request.password);
-        console.log("resp", resp);
         if (resp.status === 200) {
           chrome.storage.local.set({auth: resp})
         }
@@ -19,7 +14,6 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.local.get('auth', async function(items) {
           const token = items.auth.token;
           const appts = await getAppointments(token, request.begin, request.end)
-          console.log(appts);
           const msg = {
             type: "boostlingoResponse",
             appointments: appts
@@ -43,7 +37,6 @@ chrome.runtime.onMessage.addListener(
 async function signin(email, password) {
   const url = 'https://app.boostlingo.com/api/web/account/signin';
   const body = JSON.stringify({email, password});
-  console.log("boDY", body);
   const raw = await fetch(url, {
     method: 'POST',
     headers: {
@@ -51,14 +44,12 @@ async function signin(email, password) {
     },
     body: JSON.stringify({email, password})
   });
-  console.log("fetched?")
   const status = raw.status;
   var error = "";
   var response = {};
   var retval = {};
   if (status == 200) {
     const json = await raw.json();
-    console.log("200", json);
     response = json;
     error = "";
     retval = {status: status, expiresAt: response.expiresAt, token: response.token}
