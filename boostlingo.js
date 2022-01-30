@@ -10,7 +10,6 @@ chrome.runtime.onMessage.addListener(
         // sendResponse(resp);
         break;
       case "boostlingoRequest":
-        // TODO: this is a hack for testing purposes
         chrome.storage.local.get('auth', async function(items) {
           const token = items.auth.token;
           const appts = await getAppointments(token, request.begin, request.end)

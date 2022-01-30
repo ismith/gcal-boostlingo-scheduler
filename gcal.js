@@ -90,8 +90,6 @@ function setDetails() {
   warnings = warnings.map(function(s) { return "WARNING: " + s });
 
   // TODO: this needs cleanup, and some better templating would be nice.
-  // TODO: this also needs to be configurable - do you want this warning, or
-  // not?
   newDiv.innerHTML = `<div aria-hidden="true" class="nGJqzd OLw7vb"><span class="DPvwYc rL6ose" aria-hidden="true"><div class="T7dzVe" style=""></div></span></div> <div class="NI2kfb "><div class="agOyMd Q3pZ0e"><div class="JAPzS"><span role="heading" aria-level="1" id="rAECCd">Interpreting</span></div><div class="DN1TJ fX8Pqc CyPPBf">${blData.interpreters.join(", ")}<br>${warnings.join("<br>")}</div></div></div>`
 
 
@@ -123,11 +121,7 @@ function getEvents() {
     document.querySelectorAll('[data-eventid][data-eventchip]')
   );
 
-  events.filter(function(e) {
-    // TODO: filter on ynRLnc contains Needs RSVP
-    // might also be background-color isn't set?
-    return true;
-  }).forEach(function(e) {
+  events.forEach(function(e) {
     var targetSpan = e.querySelector('span.' + TITLE_SPAN_CLASS);
     if (targetSpan === null) {
       // I'm pretty sure based on count ('nullSpans.size' on my current calendar
@@ -228,7 +222,6 @@ function setIcon(node, icon) {
     nullSpans.set(eventId(node), true);
     return;
   }
-  // TODO: regex so we can do s/fa-[a-z-]*/fa-new-icon/?
   span.className = "boostlingo-icon " + icon;
 }
 
