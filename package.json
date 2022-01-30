@@ -1,0 +1,22 @@
+{
+  "name": "gcal-boostlingo-scheduler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "boostlingo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ismith/gcal-boostlingo-scheduler.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ismith/gcal-boostlingo-scheduler/issues"
+  },
+  "homepage": "https://github.com/ismith/gcal-boostlingo-scheduler#readme",
+  "dependencies": {
+    "eslint": "^8.8.0"
+  }
+}
