@@ -169,6 +169,17 @@ function getEvents() {
     span.style.marginRight = "5px";
     span.dataset.eventid = eventId(e);
 
+    span.onclick = function(e) {
+      if (e.target.dataset.eventid !== undefined) {
+        e.preventDefault();
+        const accountUniqueId = blDataMap.get(e.target.dataset.eventid).accountUniqueId;
+        window.open(
+          `https://app.boostlingo.com/app/client/viewer/appointment/${accountUniqueId}`,
+           "_blank"
+        )
+      }
+    }
+
     attachTippyToSpan(span, blDataMap.get(eventId(e)));
 
     targetSpan.before(span);

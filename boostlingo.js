@@ -169,6 +169,7 @@ async function getAppointment(token, id) {
     subject: response.subject,
     description: response.description,
     privateNotes: privateNotes,
+    accountUniqueId: response.accountUniqueId,
     //interpreters: response.interpreters.map(function(i) { return i.name }),
     //endTime: response.endTime,
     //startTime: response.startTime
