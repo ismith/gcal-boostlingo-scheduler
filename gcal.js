@@ -167,12 +167,7 @@ function getEvents() {
     let span = document.createElement("span");
     span.className = "boostlingo-icon " + iconNameMap.get(eventId(e));
     span.style.marginRight = "5px";
-
-    tippy(span, {
-      content: "hello world!",
-      interactive: true,
-      trigger: 'mouseover mouseenter click',
-    })
+    span.dataset.eventid = eventId(e);
 
     targetSpan.before(span);
     iconSpanMap.set(eventId(e), span);
@@ -336,6 +331,19 @@ chrome.runtime.onMessage.addListener(async function (
             // TODO: decouple appt.state from icon name
             iconNameMap.set(eid, appt.state);
             setIcon(getEvent(eid), appt.state);
+
+            const span = document.querySelector(`span[data-eventid="${eid}"`);
+            span.dataset.interpreters = appt.interpreters.join(", ")
+            tippy(span, {
+              allowHTML: true,
+              content: `<div style='font-weight: bold;'>Interpreters</div><div>${appt.interpreters.join(", ")}</div><div>Warnings</div><div>foo</div>`,
+              interactive: true,
+              // This is not ideal for keyboard navigation, but I'm not sure
+              // where else to append it. See https://atomiks.github.io/tippyjs/v6/accessibility/#interactivity
+              appendTo: document.body,
+              trigger: 'mouseover mouseenter click',
+            })
+
             blDataMap.set(eid, appt);
           }
         }
