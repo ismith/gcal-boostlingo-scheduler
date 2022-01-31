@@ -236,6 +236,7 @@ function _getEventsSpan(events) {
 }
 
 function eventId(e) {
+  if (e.dataset === undefined) { return undefined }
   return e.dataset.eventid;
 }
 
@@ -351,7 +352,7 @@ chrome.runtime.onMessage.addListener(async function (
       );
       appts.forEach(function (appt) {
         for (const [eid, evt] of eventDataMap) {
-          if (eventBLMatch(evt, appt)) {
+          if (eventBLMatch(evt, appt) && getEvent(eid) !== undefined) {
             // TODO: decouple appt.state from icon name
             iconNameMap.set(eid, appt.state);
             setIcon(getEvent(eid), appt.state);
