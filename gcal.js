@@ -169,6 +169,8 @@ function getEvents() {
     span.style.marginRight = "5px";
     span.dataset.eventid = eventId(e);
 
+    attachTippyToSpan(span, blDataMap.get(eventId(e)));
+
     targetSpan.before(span);
     iconSpanMap.set(eventId(e), span);
   });
@@ -312,6 +314,28 @@ function eventBLMatch(evt, bl) {
   // && evt.end.add(30).minutes() >= Date.parse(bl.endTime));
 }
 
+function attachTippyToSpan(span, appt) {
+  if (appt === undefined) {
+    return
+  }
+
+  if (span._tippy !== undefined) {
+    span._tippy.destroy()
+  }
+
+  span.dataset.interpreters = appt.interpreters.join(", ")
+  /*global tippy */
+  tippy(span, {
+    allowHTML: true,
+    content: `<div style='font-weight: bold;'>Interpreters</div><div>${appt.interpreters.join(", ")}</div>`,
+    interactive: true,
+    // This is not ideal for keyboard navigation, but I'm not sure
+    // where else to append it. See https://atomiks.github.io/tippyjs/v6/accessibility/#interactivity
+    appendTo: document.body,
+    trigger: 'mouseover mouseenter click',
+  })
+}
+
 // want to call these functions from devtools?
 // https://stackoverflow.com/questions/48104433/how-to-import-es6-modules-in-content-script-for-chrome-extension
 // has some ideas.
@@ -333,16 +357,8 @@ chrome.runtime.onMessage.addListener(async function (
             setIcon(getEvent(eid), appt.state);
 
             const span = document.querySelector(`span[data-eventid="${eid}"`);
-            span.dataset.interpreters = appt.interpreters.join(", ")
-            tippy(span, {
-              allowHTML: true,
-              content: `<div style='font-weight: bold;'>Interpreters</div><div>${appt.interpreters.join(", ")}</div><div>Warnings</div><div>foo</div>`,
-              interactive: true,
-              // This is not ideal for keyboard navigation, but I'm not sure
-              // where else to append it. See https://atomiks.github.io/tippyjs/v6/accessibility/#interactivity
-              appendTo: document.body,
-              trigger: 'mouseover mouseenter click',
-            })
+
+            attachTippyToSpan(span, appt);
 
             blDataMap.set(eid, appt);
           }
@@ -361,5 +377,4 @@ chrome.runtime.onMessage.addListener(async function (
 
 window.onload = function () {
   initObserver();
-  document.tippy = tippy;
 };
