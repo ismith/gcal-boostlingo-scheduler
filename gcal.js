@@ -247,7 +247,7 @@ function _getEventsSpan(events) {
 }
 
 function eventId(e) {
-  if (e.dataset === undefined) { return undefined }
+  if (e.dataset === undefined || e.dataset === null ) { return undefined }
   return e.dataset.eventid;
 }
 
