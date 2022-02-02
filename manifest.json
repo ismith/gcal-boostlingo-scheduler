@@ -21,7 +21,11 @@
   "web_accessible_resources": [
     {
       "matches": ["*://calendar.google.com/*"],
-      "resources": ["boostlingo.js", "popup.js", "documentation.html"]
+      "resources": ["boostlingo.js", "popup.js", "documentation.html",
+      "docs.js",
+           "thirdparty/marked.min.js",
+           "thirdparty/bootstrap.min.js"
+      ]
     }
   ],
   "content_security_policy": {
