@@ -3,6 +3,9 @@ chrome.runtime.onMessage.addListener(async function (
   sender
 ) {
   switch (request.type) {
+    case "authResponse":
+      clearLoginWarning();
+      break;
     case "auth": {
       const resp = await signin(request.email, request.password);
       if (resp.status === 200) {
@@ -62,6 +65,7 @@ async function signin(email, password) {
       expiresAt: response.expiresAt,
       token: response.token,
     };
+    clearLoginWarning();
   } else {
     const text = await raw.text();
     error = text;
@@ -177,3 +181,31 @@ async function getAppointment(token, id) {
 
   return appointment;
 }
+
+function setLoginWarning() {
+  chrome.action.setBadgeText({text: "login"})
+  chrome.action.setBadgeBackgroundColor({color: "red"})
+}
+
+function clearLoginWarning() {
+  chrome.action.setBadgeText({text: ""})
+}
+
+function checkAndSetOrClearLoginWarning() {
+  chrome.storage.local.get("auth", async function (items) {
+    if (chrome.runtime.lastError || items.auth === undefined) {
+      setLoginWarning()
+    } else {
+      const expiresDate = new Date(items.auth.expiresAt)
+      if ( expiresDate < Date.now() ) {
+        setLoginWarning()
+      }
+    }
+  })
+}
+
+// run immediately (in addition to on an interval)
+checkAndSetOrClearLoginWarning()
+// ServiceWorkers don't run forever, but this should run when it reactivates due
+// to a message from gcal.js
+setInterval(checkAndSetOrClearLoginWarning, 5*60*1000)
