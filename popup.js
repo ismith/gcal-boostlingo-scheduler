@@ -56,6 +56,8 @@ chrome.runtime.onMessage.addListener(function (request) {
 });
 
 window.onload = function () {
+  document.getElementById("documentation").href = chrome.runtime.getURL("documentation.html")
+
   var f = document.getElementById("boostlingoLoginForm");
   f.onsubmit = submitLogin;
 
