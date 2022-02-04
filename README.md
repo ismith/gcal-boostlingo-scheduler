@@ -12,7 +12,7 @@ The popup when you click the menu has a form to log in to Boostlingo. Log in is 
 
 Currently, 3 types of information are supported:
 
-### Icons.
+### Icons
 
 Each calendar event now has an icon indicating boostlingo status; the icon is also a clickable link to the boostlingo job.
 
