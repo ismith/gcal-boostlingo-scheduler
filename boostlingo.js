@@ -123,7 +123,20 @@ async function getAppointments(token, start, end) {
 
 function appointmentStateToString(state) {
   var str = "";
+  // from https://app.boostlingo.com/api/web/dictionary/appointment-dictionaries
+  // | jq '.statesInfo[] |{id, name: .stateDisplayNames[0].displayName}'
+  // 1: draft approval
+  // 2: new
+  // 3: broadcasted
+  // 4: confirm interpreters (by admin?)
+  // 5: scheduled
+  // 6: in progress
+  // 7: completed
+  // 8: canceled
   switch (state) {
+    case 1:
+    case 2:
+    case 3:
     case 4:
       str = "Confirmation Pending By Admin";
       str = "fas fa-tasks";
@@ -132,7 +145,10 @@ function appointmentStateToString(state) {
       str = "Scheduled";
       str = "fas fa-american-sign-language-interpreting";
       break;
+    case 6:
     case 7:
+    case 8:
+    case 9:
       str = "Completed";
       str = "fas fa-check";
       break;
