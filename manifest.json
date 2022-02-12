@@ -1,7 +1,7 @@
 {
   "name": "Google Calendar/Boostlingo Scheduler",
   "description": "Make Boostlingo appointments visible on Google Calendar events",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "manifest_version": 3,
 
   "content_scripts": [
