@@ -130,3 +130,17 @@ function prefillNumberOfInterpreters()
 // - communication type (3rd party platform)
 // - Language To: "American Sign Language - ASL"
 // x Number of Interpreters: 2 (?)
+
+// TODO plan:
+// [x] function to get a zoom link from the page
+// [ ] clicking in gcal, under some conditions, creates a tab at
+// https://app.boostlingo.com/app/client/scheduling/calendar. We get a callback,
+// which puts a message onto the bus with properties {startTime:, endTime:,
+// subject:, description:, zoomLink:, tabId: }
+// [ ] config values: zoom link on/off
+// [ ] boostlingo pages listen for those messages and on its tabId
+// [ ] if a message is processed, it prefills the page
+// [ ] bonus: can we, on save, send a message back to gcal?
+// [ ] bonus: we can do the zoom-link-missing-or-wrong thing from the main view
+//     now, no need to click in to the event details!
+

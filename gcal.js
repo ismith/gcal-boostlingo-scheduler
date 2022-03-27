@@ -170,13 +170,30 @@ function getEvents() {
     span.dataset.eventid = eventId(e);
 
     span.onclick = function(e) {
-      if (e.target.dataset.eventid !== undefined) {
+      const iconName = iconNameMap.get(eid);
+      if (iconName !== undefined) {
         e.preventDefault();
-        const accountUniqueId = blDataMap.get(e.target.dataset.eventid).accountUniqueId;
-        window.open(
-          `https://app.boostlingo.com/app/client/viewer/appointment/${accountUniqueId}`,
-           "_blank"
-        )
+
+        if (iconName == "far fa-circle") {
+          // No boostlingo appt yet, schedule one.
+          let eventData = eventDataMap.get(eid);
+          let msg = {
+            subject: e.target.parentElement.querySelector("." + TITLE_SPAN_CLASS).textContent,
+            privateNotes: zoomLinkFromEventId(eid),
+            description: "",
+            startTime: eventData.begin,
+            endTime: eventData.end
+          }
+          // TODO
+          // open tab for event
+          // once callback arrives, send message
+        } else {
+          const accountUniqueId = blDataMap.get(e.target.dataset.eventid).accountUniqueId;
+          window.open(
+            `https://app.boostlingo.com/app/client/viewer/appointment/${accountUniqueId}`,
+             "_blank"
+          )
+        }
       }
     }
 
@@ -386,6 +403,47 @@ chrome.runtime.onMessage.addListener(async function (
   // do nothing with sendResponse
   return true;
 });
+
+// returns string or undefined
+function zoomLinkFromEventId(eventId) {
+  if (eventId === null || eventId === undefined || eventId === "") {
+    return undefined
+  }
+
+  // No clue if this updates or not when events are created :shrug: TODO test and find out
+  // Possible future optimization: defiant.js has a snapshot feature? Could let
+  // us run multiple queries faster.
+  const initialData = JSON.parse(document.getElementById("initialdata").textContent)
+
+  // Defiant.js takes a json object and lets you apply xpath expressions to it.
+  // This xpath expression says:
+  // - find the node whose text is // https://www.google.com/calendar/event?eid={eventId}
+  // - go to its parent (the containing array; this holds data for the given
+  //   event)
+  // - search for nodes inside here that contain zoom.us
+  //
+  // This will give you multiple hits - in the "optimal" case, a zoom link with
+  // an https scheme, one without, one prefixed with
+  // https://www.google.com/url?q= and postfixed with some additional query
+  // param junk, and one to the zoom addon. Since "contains zoom.us" is pretty
+  // loose, and the input contains user-generated content, there could be yet
+  // more false positives.
+  //
+  // Therefore, once we have this array of urls, we'll do a stricter match to
+  // narrow it down to just one. (Or zero, if this event doesn't have a zoom
+  // link.)
+  let urls = defiant.search(
+    initialData,
+    `//*[text() = 'https://www.google.com/calendar/event?eid=${eventId}']/..//*[contains(text(), 'zoom.us')]`
+  )
+
+  // Find https://[some subdomain].zoom.us, and the url must be the whole field
+  // (not, like 'http://... is the link'). Note: may be undefined if this
+  // event has no zoom link!
+  const url = urls.find(e => e.match(/^https:\/\/[^.]+\.zoom\.us\/[^ ]+$/))
+
+  return url;
+}
 
 window.onload = function () {
   initObserver();
