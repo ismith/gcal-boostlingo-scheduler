@@ -14,6 +14,11 @@
            "thirdparty/popper.min.js",
            "thirdparty/tippy-bundle.umd.js",
            "gcal.js"]
+    },
+    {
+      "matches": ["*://app.boostlingo.com//app/client/scheduling/calendar"],
+      "css": [],
+      "js": ["boostlingo.js"]
     }
   ],
   "action": {
@@ -22,7 +27,7 @@
   "web_accessible_resources": [
     {
       "matches": ["*://calendar.google.com/*"],
-      "resources": ["boostlingo.js", "popup.js", "documentation.html",
+      "resources": ["background.js", "popup.js", "documentation.html",
       "docs.js",
            "thirdparty/marked.min.js",
            "thirdparty/bootstrap.min.js"

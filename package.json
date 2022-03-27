@@ -2,7 +2,7 @@
   "name": "gcal-boostlingo-scheduler",
   "version": "1.0.0",
   "description": "",
-  "main": "boostlingo.js",
+  "main": "background.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

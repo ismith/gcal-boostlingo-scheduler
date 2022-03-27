@@ -179,7 +179,7 @@ function getEvents() {
           // No boostlingo appt yet, schedule one.
           let eventData = eventDataMap.get(eid);
           let msg = {
-            type: "boostlingoPrefillAppointment",
+            type: "boostlingoPrefillAppointmentStep1",
             subject: e.target.parentElement.querySelector("." + TITLE_SPAN_CLASS).textContent,
             privateNotes: zoomLinkFromEventId(eid),
             description: "",
@@ -189,8 +189,8 @@ function getEvents() {
 
           // open tab for boostlingo scheduling
           // gcal.js is a content script; content scripts can't use the
-          // chrome.tabs API, so we'll have to send this message to the
-          // boostlingo.js, which is a background worker.
+          // chrome.tabs API, so we'll have to send this message to
+          // background.js.
           chrome.runtime.sendMessage(msg);
         } else {
           const accountUniqueId = blDataMap.get(e.target.dataset.eventid).accountUniqueId;
