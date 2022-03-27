@@ -34,6 +34,23 @@ chrome.runtime.onMessage.addListener(async function (
         chrome.tabs.sendMessage(sender.tab.id, msg);
       });
       break;
+    case "boostlingoPrefillAppointment":
+      if (request.tabId === undefined) {
+        // TODO: should we/can we make this tab open right after the calendar tab
+        // it came from?
+        chrome.tabs.create({
+          url: "https://app.boostlingo.com/app/client/scheduling/calendar",
+          active: true, // new tab is active tab
+        }, function(tab) {
+          request['tabId'] = tab.id
+          // Send message again, so the boostlingo tab knows what to do next
+          chrome.runtime.sendMessage(request);
+        })
+      } else {
+        // do nothing; tabId being defined means we've already handled this
+        // message
+      }
+      break;
     default:
       console.error("Unhandled request type", request.type);
   }

@@ -40,7 +40,8 @@
     "https://app.boostlingo.com/*"
   ],
   "permissions":[
-    "storage"
+    "storage",
+    "tabs"
   ],
   "icons": {
     "16": "icons/icon16.png",

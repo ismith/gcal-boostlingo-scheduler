@@ -167,7 +167,8 @@ function getEvents() {
     let span = document.createElement("span");
     span.className = "boostlingo-icon " + iconNameMap.get(eventId(e));
     span.style.marginRight = "5px";
-    span.dataset.eventid = eventId(e);
+    const eid = eventId(e);
+    span.dataset.eventid = eid;
 
     span.onclick = function(e) {
       const iconName = iconNameMap.get(eid);
@@ -178,15 +179,19 @@ function getEvents() {
           // No boostlingo appt yet, schedule one.
           let eventData = eventDataMap.get(eid);
           let msg = {
+            type: "boostlingoPrefillAppointment",
             subject: e.target.parentElement.querySelector("." + TITLE_SPAN_CLASS).textContent,
             privateNotes: zoomLinkFromEventId(eid),
             description: "",
             startTime: eventData.begin,
             endTime: eventData.end
           }
-          // TODO
-          // open tab for event
-          // once callback arrives, send message
+
+          // open tab for boostlingo scheduling
+          // gcal.js is a content script; content scripts can't use the
+          // chrome.tabs API, so we'll have to send this message to the
+          // boostlingo.js, which is a background worker.
+          chrome.runtime.sendMessage(msg);
         } else {
           const accountUniqueId = blDataMap.get(e.target.dataset.eventid).accountUniqueId;
           window.open(
