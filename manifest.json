@@ -9,6 +9,7 @@
       "matches": ["*://calendar.google.com/*"],
       "css": ["thirdparty/tippy.css"],
       "js": ["thirdparty/date.js",
+          "thirdparty/defiant.js",
            "thirdparty/fontawesome-free.js",
            "thirdparty/popper.min.js",
            "thirdparty/tippy-bundle.umd.js",
