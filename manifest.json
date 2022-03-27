@@ -16,7 +16,7 @@
            "gcal.js"]
     },
     {
-      "matches": ["*://app.boostlingo.com//app/client/scheduling/calendar"],
+      "matches": ["*://app.boostlingo.com/app/client/scheduling/calendar"],
       "css": [],
       "js": ["boostlingo.js"]
     }
@@ -39,10 +39,11 @@
     "sandbox": "sandbox allow-scripts allow-forms; script-src 'self'; default-src 'self'; connect-src https://app.boostlingo.com"
   },
   "background": {
-    "service_worker": "boostlingo.js"
+    "service_worker": "background.js"
   },
   "host_permissions": [
-    "https://app.boostlingo.com/*"
+    "https://app.boostlingo.com/*",
+    "https://*/*"
   ],
   "permissions":[
     "storage",

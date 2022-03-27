@@ -42,8 +42,23 @@ chrome.runtime.onMessage.addListener(async function (
         active: true, // new tab is active tab
       }, function(tab) {
         request.type = 'boostlingoPrefillAppointmentStep2'
-        // Send message again, so the boostlingo tab knows what to do next
-        chrome.tabs.sendMessage(tab.id, request);
+
+        // This is a bit gross. We need to send this message _after_ the
+        // boostlingo.js content script has had a chance to load, which will be
+        // after this callback starts. So ... sleep a short time to give it a
+        // chance.
+        //
+        // TODO: The more correct thing to do might be to persist the message in
+        // a map here with the tab id; have boostlingo.js send a "gimme the
+        // message" message once it loads, and have background.js get the
+        // message out of the map and send it. But this works for now.
+        //
+        // Alternative: https://stackoverflow.com/a/30086947 suggests using
+        // executeScript to inject boostlingo.js, and sending the message from
+        // _its_ callback. I couldn't quite get the permissions right for that.
+        setTimeout(function() {
+          chrome.tabs.sendMessage(tab.id, request);
+        }, 2000)
       })
       break;
     default:
