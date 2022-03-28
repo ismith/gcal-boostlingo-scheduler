@@ -179,6 +179,7 @@ function getEvents() {
           // No boostlingo appt yet, schedule one.
           let eventData = eventDataMap.get(eid);
           let msg = {
+            eventId: eid,
             type: "boostlingoPrefillAppointmentStep1",
             subject: e.target.parentElement.querySelector("." + TITLE_SPAN_CLASS).textContent,
             privateNotes: zoomLinkFromEventId(eid),

@@ -11,18 +11,16 @@ chrome.runtime.onMessage.addListener(async function (
         console.log("2")
         prefillNumberOfInterpreters()
         console.log("3")
-        prefillPrivateNotes(request.privateNotes)
+        // TODO: figure out why platform core's zoom link is undefined
+        prefillPrivateNotes(request.eventId + ", " + request.privateNotes)
         console.log("4")
-        // TODO: date may need waits or sleeps or something between clicks
         prefillDate(request.startTime)
         console.log("5")
-        // TODO: angular is not defined
         prefillStartTime(request.startTime)
         console.log("6")
-        // TODO: angular is not defined
         prefillEndTime(request.endTime)
         console.log("7")
-      }, 1000)
+      }, 2000)
 
       // TODO: prefillSubject
 
@@ -58,12 +56,17 @@ function _dateISOStringAsIntMonths(dateISOString) {
 }
 
 function _clickDay(dayNumber) {
+  debugger;
   // There are two tables containing div.mighty-picker-calendar__day-wrapper,
   // but only one is in a form. Not sure what the other one is for.
+  //
+  // Also - filter out any whose parent td has class ...--disabled! Those are
+  // days in other months.
   Array.from(
     document.querySelector("form")
        .querySelectorAll("div.mighty-picker-calendar__day-wrapper")
-  ).find(e => e.textContent == dayNumber)
+  ).filter(e => !e.parentElement.className.includes('mighty-picker-calendar__day--disabled'))
+   .find(e => e.textContent == dayNumber)
    .click();
 }
 
@@ -74,12 +77,6 @@ function clickCreateNewAppointment() {
 }
 
 function prefillDate(dateISOString) {
-  // click "Create New Appointment" button
-  // TODO
-
-  // TODO wait for form to load (and other waits along the way)
-
-  // open the datepicker
   let mpBox = document.querySelector("div[ng-click='clickPicker()']");
   mpBox.click();
   mpBox.click();
@@ -90,21 +87,26 @@ function prefillDate(dateISOString) {
   let targetMonthInt = _dateISOStringAsIntMonths(dateISOString);
   let clicksToMonth = targetMonthInt - currMonthInt;
 
-  if (clicksToMonth > 0) {
-    for (var i = 0; i < clicksToMonth; i++) {
-      _clickNextMonthButton()
-    }
-  } else if (clicksToMonth < 0) {
-    let clicksToMonth = -clicksToMonth;
-    for (var i = 0; i < clicksToMonth; i++) {
-      _clickPrevMonthButton()
-    }
-  } else { // we're already on the right month
-  }
+  // Not 100% sure we need this setTimeout; worth looking?
+  setTimeout(function() {
+    if (clicksToMonth > 0) {
+      for (var i = 0; i < clicksToMonth; i++) {
+        _clickNextMonthButton()
+      }
+    } else if (clicksToMonth < 0) {
+      let clicksToMonth = -clicksToMonth;
+      for (var i = 0; i < clicksToMonth; i++) {
+        _clickPrevMonthButton()
+      }
+    } else {} // we're already on the right month
 
-  // getDate is the day-of-the-month; getDay is day-of-week (Mon=1, Tues=2)
-  let day = (new Date(dateISOString)).getDate();
-  _clickDay(day);
+    setTimeout(function() {
+      // getDate is the day-of-the-month; getDay is day-of-week (Mon=1, Tues=2)
+      let day = (new Date(dateISOString)).getDate();
+      console.log("DAY: " + day)
+      _clickDay(day);
+    }, 1000)
+  }, 1000)
 }
 
 // '05:15 AM' is the format needed by Boostlingo
@@ -114,16 +116,18 @@ function _dateISOStringAsTime(dateISOString) {
 
 function prefillStartTime(dateISOString) {
   let time = _dateISOStringAsTime(dateISOString);
-  angular.element(
-    document.querySelector("input#startTime")
-  ).val(time).trigger("input")
+  let input = document.querySelector("input#startTime")
+  input.value = time;
+
+  input.dispatchEvent(new Event('change'))
 }
 
 function prefillEndTime(dateISOString) {
   let time = _dateISOStringAsTime(dateISOString);
-  angular.element(
-    document.querySelector("input#endTime")
-  ).val(time).trigger("input")
+  let input = document.querySelector("input#endTime");
+  input.value = time;
+
+  input.dispatchEvent(new Event('change'))
 }
 
 function _setCustomField(fieldName, value) {
