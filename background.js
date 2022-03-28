@@ -252,3 +252,24 @@ checkAndSetOrClearLoginWarning()
 // ServiceWorkers don't run forever, but this should run when it reactivates due
 // to a message from gcal.js
 setInterval(checkAndSetOrClearLoginWarning, 5*60*1000)
+
+chrome.webRequest.onBeforeRequest.addListener(
+  function(req) {
+    // in here, we get req.url (impt for knowing which user!) and
+    // req.requestBody.formData. Within formData, f.req is a stringified version
+    // of:
+    // '[[["iansmith@honeycomb.io","honeycomb.io_jbsn0delaagir10ubbot6p1cag@group.calendar.google.com","honeycomb.io_g8brohf7nb611laae5gocjidt4@group.calendar.google.com","l5b7647pj1ju422ghaihopcej42ibfu0@import.calendar.google.com","rvtd1cpgn6u0c48nbn3afg1cdqtgr776@import.calendar.google.com","6ibppgsvbhpusunepujbentnjs570rv4@import.calendar.google.com"],[null,null,19043,19102],[null,3,"calendar.web_20220322.12_p1",null,null,null,null,436686973,null,"WEB","prod-00-us.web",1,null,null,null,0]]]'
+    //
+    // Within that, we want to templatize the 19043,19102 section - that's "days
+    // since the epoch" for which we are requesting data.
+    //
+    // once we do that, I guess we store the template and replace it with the
+    // relevant day(s) we want to get details for?
+    debugger;
+  },
+  {
+    urls: ['https://calendar.google.com/calendar/u/*/sync.prefetcheventrange']
+  },
+  ["requestBody"]
+)
+console.log("listener set up")
