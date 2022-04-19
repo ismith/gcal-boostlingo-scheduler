@@ -181,7 +181,7 @@ async function getAppointment(token, id) {
 
   // jq: .customForm.fields[] | select(.label == "Private Notes:").value
   const privateNotes = response.customForm.fields.find(function (f) {
-    return f.label == "Private Notes:";
+    return f.label.startsWith("Private Notes:");
   }).value;
 
   const appointment = {
